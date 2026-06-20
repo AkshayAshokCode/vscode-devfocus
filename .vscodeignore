@@ -1,0 +1,8 @@
+**/.git/**
+**/node_modules/**
+!node_modules/@vscode/codicons/dist/**
+src/**
+esbuild.js
+tsconfig.json
+**/*.map
+**/.DS_Store

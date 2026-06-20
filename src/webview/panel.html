@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'none'; style-src {{cspSource}} 'nonce-{{nonce}}'; font-src {{cspSource}}; script-src 'nonce-{{nonce}}'; media-src {{cspSource}};" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{codiconsUri}}" />
+  <link rel="stylesheet" href="{{cssUri}}" />
+  <title>DevFocus</title>
+</head>
+<body class="phase-work layout-vertical">
+
+  <!-- Top bar: mode selector + sound toggle + settings -->
+  <div id="top-bar">
+    <select id="mode-select" title="Pomodoro mode" aria-label="Pomodoro mode">
+      <option value="CLASSIC">Classic</option>
+      <option value="DEEP_WORK">Deep Work</option>
+      <option value="CUSTOM">Custom</option>
+    </select>
+    <button id="sound-btn" title="Toggle sound" aria-label="Toggle sound">
+      <i class="codicon codicon-bell"></i>
+    </button>
+    <button id="settings-btn" title="Open Settings" aria-label="Open Settings">
+      <i class="codicon codicon-settings-gear"></i>
+    </button>
+  </div>
+
+  <!-- Info bar: mode summary + daily count -->
+  <div id="info-bar">
+    <span id="info-label"></span>
+    <span id="daily-count"></span>
+  </div>
+
+  <!-- Task label input -->
+  <div id="task-wrap">
+    <input id="task-input" type="text" maxlength="60"
+      placeholder="What are you working on?"
+      aria-label="Current task" />
+  </div>
+
+  <!-- Circular timer -->
+  <div id="timer-container">
+    <svg id="timer-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true">
+      <circle id="arc-track" cx="100" cy="100" r="80" />
+      <circle id="arc-progress" cx="100" cy="100" r="80" />
+    </svg>
+    <div id="timer-overlay">
+      <div id="time-display" role="timer" aria-live="off">
+        <span id="time-mm">00</span><span id="time-colon">:</span><span id="time-ss">00</span>
+      </div>
+      <div id="phase-label" aria-live="polite">Work</div>
+      <div id="session-text"></div>
+      <div id="pause-badge" aria-live="polite">Paused</div>
+    </div>
+  </div>
+
+  <!-- Session dots -->
+  <div id="session-indicator" role="list" aria-label="Session progress"></div>
+
+  <!-- Primary controls -->
+  <div id="controls">
+    <button id="btn-start" class="btn-primary" aria-label="Start timer">
+      <i class="codicon codicon-play"></i> Start
+    </button>
+    <button id="btn-pause" class="btn-secondary" style="display:none" aria-label="Pause timer">
+      <i class="codicon codicon-debug-pause"></i> Pause
+    </button>
+    <button id="btn-reset" class="btn-secondary" aria-label="Reset timer">
+      <i class="codicon codicon-debug-restart"></i> Reset
+    </button>
+  </div>
+
+  <!-- Skip break -->
+  <div id="skip-wrap" style="display:none">
+    <button id="btn-skip" class="btn-secondary" aria-label="Skip break">
+      <i class="codicon codicon-debug-step-over"></i> Skip Break
+    </button>
+  </div>
+
+  <!-- Custom settings panel -->
+  <div id="custom-settings" style="display:none">
+    <div class="custom-row">
+      <label for="inp-session">Session (min)</label>
+      <input id="inp-session" type="number" min="1" max="120" value="25" />
+      <span class="err" id="err-session"></span>
+    </div>
+    <div class="custom-row">
+      <label for="inp-break">Break (min)</label>
+      <input id="inp-break" type="number" min="1" max="60" value="5" />
+      <span class="err" id="err-break"></span>
+    </div>
+    <div class="custom-row">
+      <label for="inp-long-break">Long break (min)</label>
+      <input id="inp-long-break" type="number" min="5" max="60" value="15" />
+      <span class="err" id="err-long-break"></span>
+    </div>
+    <div class="custom-row">
+      <label for="inp-sessions">Sessions/round</label>
+      <input id="inp-sessions" type="number" min="1" max="10" value="4" />
+      <span class="err" id="err-sessions"></span>
+    </div>
+    <button id="btn-apply" class="btn-primary">Apply</button>
+  </div>
+
+  <audio id="audio-player" preload="none"></audio>
+
+  <script nonce="{{nonce}}" src="{{jsUri}}"></script>
+</body>
+</html>

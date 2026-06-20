@@ -1,0 +1,137 @@
+{
+  "name": "devfocus",
+  "displayName": "DevFocus",
+  "description": "Pomodoro timer for developers — structured focus sessions and breaks",
+  "version": "1.0.0",
+  "publisher": "akshayashokcode",
+  "icon": "media/icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AkshayAshokCode/vscode-devfocus"
+  },
+  "keywords": [
+    "pomodoro",
+    "timer",
+    "productivity",
+    "focus"
+  ],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devfocus-sidebar",
+          "title": "DevFocus",
+          "icon": "media/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "devfocus-sidebar": [
+        {
+          "type": "webview",
+          "id": "devfocus.panel",
+          "name": "DevFocus"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "devfocus.toggle",
+        "title": "DevFocus: Start / Pause Timer",
+        "icon": "$(watch)"
+      },
+      {
+        "command": "devfocus.reset",
+        "title": "DevFocus: Reset Timer",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "devfocus.skipBreak",
+        "title": "DevFocus: Skip Break",
+        "icon": "$(debug-step-over)"
+      },
+      {
+        "command": "devfocus.openPanel",
+        "title": "DevFocus: Open Panel",
+        "icon": "$(clock)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "devfocus.toggle",
+        "key": "alt+shift+f"
+      },
+      {
+        "command": "devfocus.reset",
+        "key": "alt+shift+r"
+      },
+      {
+        "command": "devfocus.skipBreak",
+        "key": "alt+shift+b"
+      }
+    ],
+    "configuration": {
+      "title": "DevFocus",
+      "properties": {
+        "devfocus.soundEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Play sounds when sessions and breaks end"
+        },
+        "devfocus.autoStartNextSession": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start the next work session after a break"
+        },
+        "devfocus.notificationsEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show desktop notifications when sessions and breaks end"
+        },
+        "devfocus.defaultMode": {
+          "type": "string",
+          "enum": ["CLASSIC", "DEEP_WORK", "CUSTOM"],
+          "default": "CLASSIC",
+          "description": "Default Pomodoro mode on first launch"
+        },
+        "devfocus.longBreakMinutes": {
+          "type": "number",
+          "default": 15,
+          "minimum": 5,
+          "maximum": 60,
+          "description": "Default long break duration (minutes) for Custom mode"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.js --production",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/codicons": "^0.0.36",
+    "@vscode/vsce": "^2.24.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  }
+}

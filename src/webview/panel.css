@@ -1,0 +1,348 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Top bar ─────────────────────────────── */
+#top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+
+#mode-select {
+  flex: 1;
+  background: var(--vscode-dropdown-background);
+  color: var(--vscode-dropdown-foreground);
+  border: 1px solid var(--vscode-dropdown-border);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+#sound-btn,
+#settings-btn {
+  background: none;
+  border: none;
+  color: var(--vscode-foreground);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 3px 5px;
+  border-radius: 3px;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#sound-btn:hover,
+#settings-btn:hover { opacity: 1; background: var(--vscode-toolbar-hoverBackground); }
+
+/* Muted state: dim the sound button further */
+body.sound-off #sound-btn { opacity: 0.4; }
+body.sound-off #sound-btn:hover { opacity: 0.8; }
+
+/* ── Info bar ────────────────────────────── */
+#info-bar {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* ── Task input ──────────────────────────── */
+#task-wrap {
+  width: 100%;
+}
+
+#task-input {
+  width: 100%;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, var(--vscode-widget-border));
+  border-radius: 3px;
+  padding: 4px 7px;
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+}
+#task-input:focus {
+  border-color: var(--vscode-focusBorder);
+}
+#task-input::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+}
+
+/* ── Timer container ─────────────────────── */
+#timer-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+#timer-svg {
+  width: 180px;
+  height: 180px;
+  transform: rotate(-90deg);
+}
+
+/* Track circle */
+#arc-track {
+  fill: none;
+  stroke: var(--vscode-widget-border, #444);
+  stroke-width: 8;
+}
+
+/* Progress circle */
+#arc-progress {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 502.65;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.8s linear, stroke 0.4s ease, opacity 0.4s ease;
+}
+
+/* Paused: dim the arc */
+body.state-paused #arc-progress {
+  opacity: 0.45;
+}
+
+/* Phase transition pulse */
+@keyframes arc-pulse {
+  0%   { stroke-width: 8;  opacity: 1; }
+  40%  { stroke-width: 13; opacity: 0.65; }
+  100% { stroke-width: 8;  opacity: 1; }
+}
+#arc-progress.phase-pulse {
+  animation: arc-pulse 0.55s ease-out forwards;
+}
+
+/* Phase colors */
+body.phase-work       #arc-progress { stroke: var(--vscode-charts-blue,   #4fc3f7); }
+body.phase-break      #arc-progress { stroke: var(--vscode-charts-orange, #ffa726); }
+body.phase-long-break #arc-progress { stroke: var(--vscode-charts-purple, #ab47bc); }
+
+#timer-overlay {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+#time-display {
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+  transition: opacity 0.3s;
+}
+
+/* Paused: dim the time digits */
+body.state-paused #time-display {
+  opacity: 0.5;
+}
+
+/* Blinking colon while running */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+body.state-running #time-colon {
+  animation: blink 1s step-end infinite;
+}
+
+#phase-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+}
+
+#session-text {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* Pause badge */
+#pause-badge {
+  display: none;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--vscode-charts-orange, #ffa726);
+  margin-top: 2px;
+}
+
+/* ── Session dots ───────────────────────── */
+#session-indicator {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.session-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vscode-widget-border, #555);
+  transition: background 0.3s;
+}
+.session-dot.done    { background: var(--vscode-charts-blue,  #4fc3f7); }
+.session-dot.current { background: var(--vscode-charts-green, #66bb6a); }
+
+/* ── Buttons ────────────────────────────── */
+#controls, #skip-wrap {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+button {
+  border: none;
+  border-radius: 3px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+button:hover  { opacity: 0.85; }
+button:active { opacity: 0.7; }
+
+.btn-primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+.btn-primary:hover { background: var(--vscode-button-hoverBackground); }
+
+.btn-secondary {
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, #cccccc);
+}
+.btn-secondary:hover { background: var(--vscode-button-secondaryHoverBackground, #45494e); }
+
+/* ── Custom settings ────────────────────── */
+#custom-settings {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--vscode-widget-border);
+  border-radius: 4px;
+}
+
+.custom-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-row label {
+  flex: 1;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.custom-row input {
+  width: 58px;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, var(--vscode-widget-border));
+  border-radius: 3px;
+  padding: 3px 5px;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+.custom-row input.invalid {
+  border-color: var(--vscode-inputValidation-errorBorder, #f44747);
+}
+
+.err {
+  font-size: 10px;
+  color: var(--vscode-inputValidation-errorForeground, #f44747);
+  min-width: 28px;
+}
+
+/* ── Layout modes ───────────────────────── */
+
+/* Compact: w<160 or h<160 — only arc + controls */
+body.layout-compact #top-bar,
+body.layout-compact #info-bar,
+body.layout-compact #task-wrap,
+body.layout-compact #session-indicator,
+body.layout-compact #custom-settings,
+body.layout-compact #skip-wrap,
+body.layout-compact #phase-label,
+body.layout-compact #session-text,
+body.layout-compact #pause-badge {
+  display: none !important;
+}
+
+body.layout-compact #timer-svg {
+  width: 120px;
+  height: 120px;
+}
+
+body.layout-compact #time-display {
+  font-size: 22px;
+}
+
+/* Horizontal: w > h — timer left, controls right */
+body.layout-horizontal {
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+body.layout-horizontal #timer-container {
+  flex: 0 0 55%;
+}
+
+body.layout-horizontal #controls {
+  flex: 1;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+body.layout-horizontal #top-bar,
+body.layout-horizontal #info-bar,
+body.layout-horizontal #task-wrap,
+body.layout-horizontal #session-indicator,
+body.layout-horizontal #skip-wrap,
+body.layout-horizontal #custom-settings {
+  flex: 0 0 100%;
+  order: -1;
+}
