@@ -1,7 +1,9 @@
 # DevFocus
 
-[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/akshayashokcode.devfocus?label=VS%20Code%20Marketplace&logo=visualstudiocode)](https://marketplace.visualstudio.com/items?itemName=akshayashokcode.devfocus)
-[![Open VSX](https://img.shields.io/open-vsx/v/akshayashokcode/devfocus?label=Open%20VSX%20%28Cursor%29&logo=eclipseide)](https://open-vsx.org/extension/akshayashokcode/devfocus)
+[![VS Code Marketplace Version](https://vsmarketplacebadges.dev/version-short/akshayashokcode.devfocus.png)](https://marketplace.visualstudio.com/items?itemName=akshayashokcode.devfocus)
+[![VS Code Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/akshayashokcode.devfocus.png)](https://marketplace.visualstudio.com/items?itemName=akshayashokcode.devfocus)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/akshayashokcode/devfocus?label=Open%20VSX&logo=eclipseide)](https://open-vsx.org/extension/akshayashokcode/devfocus)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/akshayashokcode/devfocus?label=Cursor%20Downloads)](https://open-vsx.org/extension/akshayashokcode/devfocus)
 
 A Pomodoro timer built for developers, living right inside VSCode and Cursor.
 
