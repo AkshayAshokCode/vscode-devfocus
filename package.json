@@ -2,7 +2,7 @@
   "name": "devfocus",
   "displayName": "DevFocus",
   "description": "Pomodoro timer for developers — structured focus sessions and breaks",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "akshayashokcode",
   "icon": "media/icon.png",
   "license": "MIT",
@@ -105,7 +105,11 @@
         },
         "devfocus.defaultMode": {
           "type": "string",
-          "enum": ["CLASSIC", "DEEP_WORK", "CUSTOM"],
+          "enum": [
+            "CLASSIC",
+            "DEEP_WORK",
+            "CUSTOM"
+          ],
           "default": "CLASSIC",
           "description": "Default Pomodoro mode on first launch"
         },
