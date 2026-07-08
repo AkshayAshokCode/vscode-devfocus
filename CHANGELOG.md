@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.2.1] - 2026-07-08
+
+### Fixed
+- Activity Bar icon rendered as a solid square — VS Code uses that icon as a mask, so the full-color PNG collapsed into a blob; replaced with a monochrome SVG of the brand ring (the marketplace tile keeps the PNG)
+- Codicon icons now render in the installed extension — the icon font was loaded from `node_modules`, which is never included in the packaged `.vsix`; it is now vendored into the webview assets
+
+### Added
+- Day plan — write up to 5 tasks for today on the idle screen; the active task becomes your intent (status bar + focus screen), sessions attribute to it automatically, and completed tasks stay visibly struck through until midnight, when they fold into history as counts
+- Later tray — capture stray thoughts (`Alt+Shift+A` from anywhere via the native input box, cap 10), promote to today with one click, demote back just as easily; unfinished tasks roll into Later at midnight; items older than a week fade with a "clear old" affordance
+- Wind-down triage — one click moves all open tasks to Later so closing the day is honest
+- "Waiting on AI" micro-breaks — `Alt+Shift+M`, the button on the focus screen, or the `DevFocus: Micro-Break` command freezes the session for an open-ended rest that counts up (agent waits end unpredictably) and auto-resumes at a cap (`devfocus.microBreakMinutes`, default 3); "I'm back" or the agent-done hook ends it sooner
+- Agent integration URIs — `vscode://akshayashokcode.devfocus/{micro-break|agent-start|agent-done}` let AI tool hooks (e.g. Claude Code) suggest a rest when an agent starts and call you back when it finishes
+- Session history — daily records (sessions, focus time, breaks taken/skipped) kept locally for the last 30 days, archived automatically at midnight
+- Weekly rhythm strip — a 7-day bar chart on the idle screen with per-day tooltips
+- Weekly focus total shown next to the rhythm strip (streaks were considered and rejected — loss-aversion mechanics punish rest)
+- Daily session goal (`devfocus.dailyGoal`, default 8) — progress shown as `3/8 today` in the status bar and panel, with a "Daily goal reached" notification
+- Wind-down mode (`devfocus.windDownTime`, default 18:00) — after this hour the status bar shows a wind-down state and the idle panel leads with a day summary (sessions, focus time, breaks skipped)
+- Focus time tracking — total focused minutes per day, shown in the day summary and status bar tooltip
+- Skip-break friction — skipped breaks are counted and gently surfaced next to the Skip button ("2 breaks skipped today — try to honor this one")
+
+### Changed
+- Start/Pause keybinding moved from `Alt+Shift+F` to `Alt+Shift+D` — `Alt+Shift+F` is VS Code's Format Document; Reset lost its default binding (`Alt+Shift+R` collides with Reveal in Explorer, and destructive + rare warrants Command Palette only)
+- Idle screen decluttered: the info line shows today's focus time instead of duplicating the mode; the in-arc session counter and idle FOCUS label are gone (the segments carry round progress, now with tooltips); the wind-down summary no longer appears on an empty day
+- Visual rebrand — pomodoro iconography retired: no tomato, no emoji anywhere; monochrome instrument style with the theme's own accent as the single signal color, thin timer numerals, session segments instead of dots, and circle-codicon status bar states (filled = focus, outline = recovery)
+- Notifications are now single terse sentences (VS Code toasts render one line)
+- Panel redesigned around four state-driven screens: **Setup** (first run), **Idle**, **Focus**, and **Break** — each moment shows only what it needs (see `docs/UX_PLAN.md`)
+- First-run setup screen: pick your rhythm (Classic / Deep Work / Custom) with one click
+- Custom timings moved behind a "Customize timings" disclosure on the Idle screen
+- Intent line ("What are you working on?") promoted on the Focus screen and shown inline in the status bar while a session runs
+- Break screen now leads with a phase-coloured heading and a rotating gentle suggestion (stretch, eyes, water)
+- Session dots now mark the just-finished session as done during its break
+- Start button reads "Resume" when paused; Reset hidden when there is nothing to reset
+- Notification copy pass — calmer, break-honoring tone ("nudge, never guilt")
+
 ## [1.0.0] - 2026-07-05
 
 ### Added

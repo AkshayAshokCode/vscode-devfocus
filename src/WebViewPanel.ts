@@ -30,7 +30,6 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
       localResourceRoots: [
         vscode.Uri.joinPath(extensionUri, 'src', 'webview'),
         vscode.Uri.joinPath(extensionUri, 'media'),
-        vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode', 'codicons', 'dist'),
       ],
     };
 
@@ -42,8 +41,17 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
         case 'pause':        this.timerService.pause();   break;
         case 'reset':        this.timerService.reset();   break;
         case 'skipBreak':    this.timerService.skipBreak(); break;
+        case 'microBreak':   this.timerService.microBreak(); break;
         case 'toggleSound':  this.timerService.toggleSound(); break;
         case 'setTask':      this.timerService.setTask(msg.label); break;
+        case 'addTask':      this.timerService.addTask(msg.label); break;
+        case 'toggleTaskDone': this.timerService.toggleTaskDone(msg.id); break;
+        case 'setActiveTask':  this.timerService.setActiveTask(msg.id); break;
+        case 'demoteTask':     this.timerService.demoteTask(msg.id); break;
+        case 'promoteTask':    this.timerService.promoteTask(msg.id); break;
+        case 'deleteLaterTask': this.timerService.deleteLaterTask(msg.id); break;
+        case 'clearOldLater':  this.timerService.clearOldLater(); break;
+        case 'triageOpenTasks': this.timerService.triageOpenTasks(); break;
         case 'applyMode':    this.timerService.applyMode(msg.mode); break;
         case 'applyCustomSettings':
           this.timerService.applyCustomSettings(
@@ -91,8 +99,9 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
     const jsUri = webview.asWebviewUri(
       vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'panel.js'),
     );
+    // Vendored copy — devDependencies never ship in the .vsix
     const codiconsUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(extensionUri, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.css'),
+      vscode.Uri.joinPath(extensionUri, 'src', 'webview', 'codicons', 'codicon.css'),
     );
 
     const htmlPath = path.join(extensionUri.fsPath, 'src', 'webview', 'panel.html');

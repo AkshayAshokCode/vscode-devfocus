@@ -3,6 +3,7 @@
 !node_modules/@vscode/codicons/dist/**
 src/**
 !src/webview/**
+docs/**
 esbuild.js
 tsconfig.json
 **/*.map

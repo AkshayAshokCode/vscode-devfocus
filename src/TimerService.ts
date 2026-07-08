@@ -6,12 +6,27 @@ import {
   PomodoroSettings,
   TimerSnapshot,
   PersistedState,
+  DailyRecord,
+  PlanTask,
+  LaterTask,
   PRESET_SETTINGS,
 } from './types';
 
 const PERSIST_KEY = 'devfocus.state';
 const PERSIST_INTERVAL_TICKS = 30;
 const MILESTONE_INTERVAL = 5;
+const HISTORY_DAYS = 30;
+const PLAN_MAX = 5;
+const LATER_MAX = 10; // gates manual adds only; demotion and rollover always succeed
+const LATER_STALE_DAYS = 7;
+
+function isoDate(d: Date): string {
+  return d.toISOString().split('T')[0];
+}
+
+function uid(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
 
 export class TimerService {
   private state: TimerState = TimerState.IDLE;
@@ -21,11 +36,26 @@ export class TimerService {
   private currentSession: number = 1;
   private settings: PomodoroSettings;
   private completedSessionsToday: number = 0;
+  private breaksSkippedToday: number = 0;
+  private breaksTakenToday: number = 0;
+  private focusMsToday: number = 0;
+  private history: DailyRecord[] = [];
+  private planTasks: PlanTask[] = [];
+  private activeTaskId: string | null = null;
+  private laterTasks: LaterTask[] = [];
   private lastSessionDate: string = '';
   private soundEnabled: boolean;
   private autoStartNextSession: boolean;
   private notificationsEnabled: boolean;
+  private dailyGoal: number;
+  private windDownTime: string;
   private taskLabel: string = '';
+  private firstRun: boolean = false;
+  // Micro-break overlay: an open-ended rest that counts UP while the main timer is
+  // frozen. Agent waits end unpredictably, so no fixed length — the cap only exists
+  // so a forgotten break can't eat the session.
+  private microBreakElapsedMs: number | null = null;
+  private microBreakCapMs: number = 0;
   private tickCount: number = 0;
   private intervalHandle: ReturnType<typeof setInterval> | undefined;
 
@@ -38,6 +68,8 @@ export class TimerService {
     this.soundEnabled = cfg.get('soundEnabled', true);
     this.autoStartNextSession = cfg.get('autoStartNextSession', true);
     this.notificationsEnabled = cfg.get('notificationsEnabled', true);
+    this.dailyGoal = cfg.get('dailyGoal', 8);
+    this.windDownTime = cfg.get('windDownTime', '18:00');
 
     const defaultMode = cfg.get<string>('defaultMode', 'CLASSIC') as PomodoroMode;
     this.settings = { ...PRESET_SETTINGS[defaultMode] ?? PRESET_SETTINGS[PomodoroMode.CLASSIC] };
@@ -55,12 +87,23 @@ export class TimerService {
 
   private restoreState(): void {
     const saved = this.context.globalState.get<PersistedState>(PERSIST_KEY);
-    if (!saved) return;
+    if (!saved) {
+      // Nothing persisted yet — show the first-run setup screen
+      this.firstRun = true;
+      return;
+    }
 
     this.settings = saved.settings ?? this.settings;
     this.currentSession = saved.currentSession ?? 1;
     this.phase = saved.phase ?? TimerPhase.WORK;
     this.completedSessionsToday = saved.completedSessionsToday ?? 0;
+    this.breaksSkippedToday = saved.breaksSkippedToday ?? 0;
+    this.breaksTakenToday = saved.breaksTakenToday ?? 0;
+    this.focusMsToday = saved.focusMsToday ?? 0;
+    this.history = saved.history ?? [];
+    this.planTasks = saved.planTasks ?? [];
+    this.activeTaskId = saved.activeTaskId ?? null;
+    this.laterTasks = saved.laterTasks ?? [];
     this.lastSessionDate = saved.lastSessionDate ?? '';
     this.soundEnabled = saved.soundEnabled ?? this.soundEnabled;
     this.autoStartNextSession = saved.autoStartNextSession ?? this.autoStartNextSession;
@@ -83,6 +126,13 @@ export class TimerService {
       timerWasRunning: this.state === TimerState.RUNNING,
       settings: this.settings,
       completedSessionsToday: this.completedSessionsToday,
+      breaksSkippedToday: this.breaksSkippedToday,
+      breaksTakenToday: this.breaksTakenToday,
+      focusMsToday: this.focusMsToday,
+      history: this.history,
+      planTasks: this.planTasks,
+      activeTaskId: this.activeTaskId,
+      laterTasks: this.laterTasks,
       lastSessionDate: this.lastSessionDate,
       soundEnabled: this.soundEnabled,
       autoStartNextSession: this.autoStartNextSession,
@@ -92,14 +142,72 @@ export class TimerService {
   }
 
   private checkDailyReset(): void {
-    const today = new Date().toISOString().split('T')[0];
+    const today = isoDate(new Date());
     if (this.lastSessionDate !== today) {
+      // Archive the finished day before zeroing the counters
+      if (this.lastSessionDate && (this.completedSessionsToday > 0 || this.focusMsToday > 0)) {
+        this.history.push({
+          date: this.lastSessionDate,
+          sessions: this.completedSessionsToday,
+          focusMs: this.focusMsToday,
+          breaksTaken: this.breaksTakenToday,
+          breaksSkipped: this.breaksSkippedToday,
+          tasksPlanned: this.planTasks.length || undefined,
+          tasksDone: this.planTasks.filter(t => t.done).length || undefined,
+        });
+        if (this.history.length > HISTORY_DAYS) {
+          this.history = this.history.slice(-HISTORY_DAYS);
+        }
+      }
+
+      // Done tasks become numbers; unfinished ones wait in Later for tomorrow
+      const unfinished = this.planTasks.filter(t => !t.done);
+      if (unfinished.length > 0) {
+        this.laterTasks.push(
+          ...unfinished.map(t => ({ id: t.id, label: t.label, addedDate: today })),
+        );
+      }
+      // Session tallies don't survive the day (Later carries no metadata across days)
+      this.laterTasks = this.laterTasks.map(({ id, label, addedDate }) => ({ id, label, addedDate }));
+      if (this.planTasks.length > 0) {
+        this.taskLabel = '';
+      }
+      this.planTasks = [];
+      this.activeTaskId = null;
+
       this.completedSessionsToday = 0;
+      this.breaksSkippedToday = 0;
+      this.breaksTakenToday = 0;
+      this.focusMsToday = 0;
       this.lastSessionDate = today;
     }
   }
 
+  private isWindDown(): boolean {
+    const m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(this.windDownTime);
+    if (!m) return false;
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    return nowMins >= parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+  }
+
   private tick(): void {
+    // Midnight rollover — archive yesterday even if the editor sat open overnight
+    if (this.lastSessionDate && this.lastSessionDate !== isoDate(new Date())) {
+      this.checkDailyReset();
+      this.persistState();
+    }
+
+    if (this.microBreakElapsedMs !== null) {
+      this.microBreakElapsedMs += 1000;
+      if (this.microBreakElapsedMs >= this.microBreakCapMs) {
+        this.endMicroBreak(true);
+      } else {
+        this.onSnapshot(this.buildSnapshot());
+      }
+      return;
+    }
+
     if (this.state !== TimerState.RUNNING) {
       this.onSnapshot(this.buildSnapshot());
       return;
@@ -107,6 +215,9 @@ export class TimerService {
 
     this.remainingMs -= 1000;
     this.tickCount++;
+    if (this.phase === TimerPhase.WORK) {
+      this.focusMsToday += 1000;
+    }
 
     if (this.tickCount % PERSIST_INTERVAL_TICKS === 0) {
       this.persistState();
@@ -124,14 +235,19 @@ export class TimerService {
       this.checkDailyReset();
       this.completedSessionsToday++;
 
-      // Milestone notification every N sessions
-      if (this.completedSessionsToday % MILESTONE_INTERVAL === 0) {
-        const n = this.completedSessionsToday;
-        const msg = n === MILESTONE_INTERVAL
-          ? `${n} sessions today — you're on a roll! 🔥`
-          : `${n} sessions today! Keep going! 🏆`;
-        if (this.notificationsEnabled) {
-          this.onNotify('🎯 Milestone!', msg);
+      // Attribute the finished session to the active task
+      const active = this.planTasks.find(t => t.id === this.activeTaskId);
+      if (active) {
+        active.sessions++;
+      }
+
+      // Daily goal takes precedence over the generic milestone
+      const n = this.completedSessionsToday;
+      if (this.notificationsEnabled) {
+        if (this.dailyGoal > 0 && n === this.dailyGoal) {
+          this.onNotify(`Goal met — ${n} sessions. Everything from here is bonus.`, '');
+        } else if (n % MILESTONE_INTERVAL === 0) {
+          this.onNotify(`${n} sessions today. Make the next break a real one.`, '');
         }
       }
 
@@ -144,8 +260,8 @@ export class TimerService {
         if (this.soundEnabled) { this.onPlaySound('complete'); }
         if (this.notificationsEnabled) {
           this.onNotify(
-            '🎉 Round Complete!',
-            `${this.settings.sessionsPerRound} sessions done! Starting long break.`,
+            `Round complete — step away for ${this.settings.longBreakMinutes} minutes.`,
+            '',
           );
         }
       } else {
@@ -156,13 +272,14 @@ export class TimerService {
         if (this.soundEnabled) { this.onPlaySound('work'); }
         if (this.notificationsEnabled) {
           this.onNotify(
-            '✅ Session Complete!',
-            `Session ${this.currentSession} done. Break time!`,
+            `Session ${this.currentSession} done — take ${this.settings.breakMinutes} minutes away from the screen.`,
+            '',
           );
         }
       }
     } else {
       const wasLongBreak = this.phase === TimerPhase.LONG_BREAK;
+      this.breaksTakenToday++;
       if (wasLongBreak) {
         this.currentSession = 1;
       } else {
@@ -178,15 +295,18 @@ export class TimerService {
       if (this.autoStartNextSession) {
         this.state = TimerState.RUNNING;
         if (this.notificationsEnabled) {
-          this.onNotify('▶️ Back to Work!', `Starting session ${this.currentSession}.`);
+          this.onNotify(
+            `Session ${this.currentSession} of ${this.settings.sessionsPerRound} starting.`,
+            '',
+          );
         }
       } else {
         this.state = TimerState.IDLE;
         if (this.notificationsEnabled) {
           this.onNotify(
-            '☕ Break Over',
-            `Ready for session ${this.currentSession}?`,
-            'Start Session',
+            `Session ${this.currentSession} is ready when you are.`,
+            '',
+            'Start session',
             () => this.start(),
           );
         }
@@ -206,10 +326,16 @@ export class TimerService {
   }
 
   private buildSnapshot(): TimerSnapshot {
-    const totalSec = Math.ceil(this.remainingMs / 1000);
+    // A micro-break counts UP (open-ended rest); its arc fills toward the auto-resume cap
+    const microActive = this.microBreakElapsedMs !== null;
+    const shownMs = microActive ? this.microBreakElapsedMs! : this.remainingMs;
+
+    const totalSec = microActive ? Math.floor(shownMs / 1000) : Math.ceil(shownMs / 1000);
     const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
     const seconds = (totalSec % 60).toString().padStart(2, '0');
-    const progress = this.totalMs > 0 ? 1 - this.remainingMs / this.totalMs : 0;
+    const progress = microActive
+      ? (this.microBreakCapMs > 0 ? shownMs / this.microBreakCapMs : 0)
+      : (this.totalMs > 0 ? 1 - this.remainingMs / this.totalMs : 0);
 
     return {
       state: this.state,
@@ -219,9 +345,19 @@ export class TimerService {
       currentSession: this.currentSession,
       settings: { ...this.settings },
       dailyCount: this.completedSessionsToday,
+      dailyGoal: this.dailyGoal,
+      focusMsToday: this.focusMsToday,
+      breaksSkippedToday: this.breaksSkippedToday,
+      windDown: this.isWindDown(),
+      history: this.history.slice(-7),
+      microBreakActive: microActive,
+      planTasks: this.planTasks.map(t => ({ ...t })),
+      activeTaskId: this.activeTaskId,
+      laterTasks: this.laterTasks.map(t => ({ ...t })),
       soundEnabled: this.soundEnabled,
       autoStartNextSession: this.autoStartNextSession,
       taskLabel: this.taskLabel,
+      firstRun: this.firstRun,
     };
   }
 
@@ -229,6 +365,7 @@ export class TimerService {
 
   start(): void {
     if (this.state === TimerState.IDLE || this.state === TimerState.PAUSED) {
+      this.firstRun = false;
       this.state = TimerState.RUNNING;
       this.persistState();
       this.onSnapshot(this.buildSnapshot());
@@ -244,6 +381,11 @@ export class TimerService {
   }
 
   toggle(): void {
+    // During a micro-break, toggle means "I'm back" — resume whatever was frozen
+    if (this.microBreakElapsedMs !== null) {
+      this.endMicroBreak(false);
+      return;
+    }
     if (this.state === TimerState.RUNNING) {
       this.pause();
     } else {
@@ -251,7 +393,44 @@ export class TimerService {
     }
   }
 
+  microBreak(): void {
+    if (this.microBreakElapsedMs !== null) {
+      this.endMicroBreak(false);
+      return;
+    }
+    // Pointless during a real break
+    if (this.phase !== TimerPhase.WORK) return;
+    this.firstRun = false;
+    const capMins = vscode.workspace.getConfiguration('devfocus').get('microBreakMinutes', 3);
+    this.microBreakCapMs = capMins * 60 * 1000;
+    this.microBreakElapsedMs = 0;
+    this.onSnapshot(this.buildSnapshot());
+  }
+
+  endMicroBreakIfActive(): void {
+    if (this.microBreakElapsedMs !== null) {
+      this.endMicroBreak(false);
+    }
+  }
+
+  private endMicroBreak(cappedOut: boolean): void {
+    this.microBreakElapsedMs = null;
+    if (cappedOut) {
+      if (this.soundEnabled) { this.onPlaySound('break'); }
+      if (this.notificationsEnabled) {
+        this.onNotify(
+          this.state === TimerState.RUNNING
+            ? 'Micro-break over — resuming.'
+            : 'Micro-break over — ready when you are.',
+          '',
+        );
+      }
+    }
+    this.onSnapshot(this.buildSnapshot());
+  }
+
   reset(): void {
+    this.microBreakElapsedMs = null;
     this.state = TimerState.IDLE;
     this.phase = TimerPhase.WORK;
     this.currentSession = 1;
@@ -263,6 +442,8 @@ export class TimerService {
 
   skipBreak(): void {
     if (this.phase === TimerPhase.BREAK || this.phase === TimerPhase.LONG_BREAK) {
+      this.checkDailyReset();
+      this.breaksSkippedToday++;
       const wasLongBreak = this.phase === TimerPhase.LONG_BREAK;
       if (wasLongBreak) {
         this.currentSession = 1;
@@ -288,12 +469,128 @@ export class TimerService {
   }
 
   setTask(label: string): void {
-    this.taskLabel = label.trim().slice(0, 60);
+    const trimmed = label.trim().slice(0, 60);
+    const active = this.planTasks.find(t => t.id === this.activeTaskId);
+    if (active) {
+      // With a plan, the intent IS the active task — editing it renames the task
+      if (!trimmed) return; // never rename a task to nothing
+      active.label = trimmed;
+    }
+    this.taskLabel = trimmed;
     this.persistState();
     this.onSnapshot(this.buildSnapshot());
   }
 
+  // --- Day plan (Today + Later) ---
+
+  private syncActiveTask(): void {
+    const active = this.planTasks.find(t => t.id === this.activeTaskId && !t.done);
+    if (!active) {
+      const next = this.planTasks.find(t => !t.done);
+      this.activeTaskId = next ? next.id : null;
+      this.taskLabel = next ? next.label : '';
+    } else {
+      this.taskLabel = active.label;
+    }
+  }
+
+  private commitPlanChange(): void {
+    this.persistState();
+    this.onSnapshot(this.buildSnapshot());
+  }
+
+  addTask(label: string): void {
+    this.checkDailyReset();
+    const trimmed = label.trim().slice(0, 60);
+    if (!trimmed || this.planTasks.length >= PLAN_MAX) return;
+    this.planTasks.push({ id: uid(), label: trimmed, done: false, sessions: 0 });
+    if (!this.activeTaskId) this.syncActiveTask();
+    this.commitPlanChange();
+  }
+
+  toggleTaskDone(id: string): void {
+    const task = this.planTasks.find(t => t.id === id);
+    if (!task) return;
+    task.done = !task.done;
+    this.syncActiveTask();
+    this.commitPlanChange();
+  }
+
+  setActiveTask(id: string): void {
+    const task = this.planTasks.find(t => t.id === id && !t.done);
+    if (!task) return;
+    this.activeTaskId = task.id;
+    this.taskLabel = task.label;
+    this.commitPlanChange();
+  }
+
+  demoteTask(id: string): void {
+    const task = this.planTasks.find(t => t.id === id);
+    if (!task) return;
+    this.planTasks = this.planTasks.filter(t => t.id !== id);
+    // Demotion always succeeds — the Later cap gates manual adds only
+    this.laterTasks.push({
+      id: task.id,
+      label: task.label,
+      addedDate: isoDate(new Date()),
+      sessions: task.sessions || undefined,
+    });
+    this.syncActiveTask();
+    this.commitPlanChange();
+  }
+
+  promoteTask(id: string): void {
+    const task = this.laterTasks.find(t => t.id === id);
+    if (!task || this.planTasks.length >= PLAN_MAX) return;
+    this.laterTasks = this.laterTasks.filter(t => t.id !== id);
+    this.planTasks.push({
+      id: task.id,
+      label: task.label,
+      done: false,
+      sessions: task.sessions ?? 0, // a same-day round trip keeps its tally
+    });
+    if (!this.activeTaskId) this.syncActiveTask();
+    this.commitPlanChange();
+  }
+
+  deleteLaterTask(id: string): void {
+    this.laterTasks = this.laterTasks.filter(t => t.id !== id);
+    this.commitPlanChange();
+  }
+
+  clearOldLater(): void {
+    const cutoff = new Date();
+    cutoff.setUTCDate(cutoff.getUTCDate() - LATER_STALE_DAYS);
+    const cutoffIso = isoDate(cutoff);
+    this.laterTasks = this.laterTasks.filter(t => t.addedDate >= cutoffIso);
+    this.commitPlanChange();
+  }
+
+  triageOpenTasks(): void {
+    // Wind-down sweep: everything unfinished goes to Later in one click
+    const today = isoDate(new Date());
+    const open = this.planTasks.filter(t => !t.done);
+    this.laterTasks.push(
+      ...open.map(t => ({ id: t.id, label: t.label, addedDate: today, sessions: t.sessions || undefined })),
+    );
+    this.planTasks = this.planTasks.filter(t => t.done);
+    this.activeTaskId = null;
+    this.taskLabel = '';
+    this.commitPlanChange();
+  }
+
+  /** Capture from anywhere (command / URI). Returns false when the Later cap blocks it. */
+  captureLater(label: string): boolean {
+    const trimmed = label.trim().slice(0, 60);
+    if (!trimmed) return true;
+    if (this.laterTasks.length >= LATER_MAX) return false;
+    this.laterTasks.push({ id: uid(), label: trimmed, addedDate: isoDate(new Date()) });
+    this.commitPlanChange();
+    return true;
+  }
+
   applyMode(mode: PomodoroMode): void {
+    this.firstRun = false;
     this.settings = { ...PRESET_SETTINGS[mode] };
     // Apply user's longBreakMinutes setting for custom mode
     if (mode === PomodoroMode.CUSTOM) {
@@ -326,6 +623,8 @@ export class TimerService {
     this.soundEnabled = cfg.get('soundEnabled', true);
     this.autoStartNextSession = cfg.get('autoStartNextSession', true);
     this.notificationsEnabled = cfg.get('notificationsEnabled', true);
+    this.dailyGoal = cfg.get('dailyGoal', 8);
+    this.windDownTime = cfg.get('windDownTime', '18:00');
     this.onSnapshot(this.buildSnapshot());
   }
 

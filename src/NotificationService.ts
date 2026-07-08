@@ -7,7 +7,8 @@ export class NotificationService {
     actionText?: string,
     actionCallback?: () => void,
   ): Promise<void> {
-    const message = `${title}\n${body}`;
+    // Toasts render one line — never join with newlines
+    const message = body ? `${title} ${body}` : title;
     const buttons: string[] = actionText ? [actionText] : [];
     const result = await vscode.window.showInformationMessage(message, ...buttons);
     if (result === actionText) {

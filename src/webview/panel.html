@@ -9,99 +9,195 @@
   <link rel="stylesheet" href="{{cssUri}}" />
   <title>DevFocus</title>
 </head>
-<body class="phase-work layout-vertical">
+<body class="screen-idle phase-work state-idle layout-vertical">
 
-  <!-- Top bar: mode selector + sound toggle + settings -->
-  <div id="top-bar">
-    <select id="mode-select" title="Pomodoro mode" aria-label="Pomodoro mode">
-      <option value="CLASSIC">Classic</option>
-      <option value="DEEP_WORK">Deep Work</option>
-      <option value="CUSTOM">Custom</option>
-    </select>
-    <button id="sound-btn" title="Toggle sound" aria-label="Toggle sound">
-      <i class="codicon codicon-bell"></i>
-    </button>
-    <button id="settings-btn" title="Open Settings" aria-label="Open Settings">
-      <i class="codicon codicon-settings-gear"></i>
-    </button>
-  </div>
+  <!-- ══ Setup screen (first run only) ══ -->
+  <section id="setup-screen" aria-label="First-time setup">
+    <div id="setup-hero" aria-hidden="true">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" stroke-width="3"
+          stroke-linecap="round" stroke-dasharray="75 26" transform="rotate(-90 20 20)" />
+      </svg>
+    </div>
+    <h1 id="setup-title">Welcome to DevFocus</h1>
+    <p id="setup-sub">Pick your rhythm — you can change it anytime.</p>
+    <div id="mode-cards">
+      <button class="mode-card" data-mode="CLASSIC">
+        <span class="mode-card-name">Classic</span>
+        <span class="mode-card-desc">25 min focus · 5 min break</span>
+      </button>
+      <button class="mode-card" data-mode="DEEP_WORK">
+        <span class="mode-card-name">Deep Work</span>
+        <span class="mode-card-desc">50 min focus · 10 min break</span>
+      </button>
+      <button class="mode-card" data-mode="CUSTOM">
+        <span class="mode-card-name">Custom</span>
+        <span class="mode-card-desc">Set your own timings</span>
+      </button>
+    </div>
+  </section>
 
-  <!-- Info bar: mode summary + daily count -->
-  <div id="info-bar">
-    <span id="info-label"></span>
-    <span id="daily-count"></span>
-  </div>
+  <!-- ══ Main screens: idle / focus / break (visibility via body.screen-*) ══ -->
+  <div id="main-screens">
 
-  <!-- Task label input -->
-  <div id="task-wrap">
-    <input id="task-input" type="text" maxlength="60"
-      placeholder="What are you working on?"
-      aria-label="Current task" />
-  </div>
+    <!-- Top bar: mode selector + sound toggle + settings -->
+    <div id="top-bar">
+      <select id="mode-select" title="Pomodoro mode" aria-label="Pomodoro mode">
+        <option value="CLASSIC">Classic</option>
+        <option value="DEEP_WORK">Deep Work</option>
+        <option value="CUSTOM">Custom</option>
+      </select>
+      <button id="sound-btn" title="Toggle sound" aria-label="Toggle sound">
+        <i class="codicon codicon-bell"></i>
+      </button>
+      <button id="settings-btn" title="Open Settings" aria-label="Open Settings">
+        <i class="codicon codicon-settings-gear"></i>
+      </button>
+    </div>
 
-  <!-- Circular timer -->
-  <div id="timer-container">
-    <svg id="timer-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true">
-      <circle id="arc-track" cx="100" cy="100" r="80" />
-      <circle id="arc-progress" cx="100" cy="100" r="80" />
-    </svg>
-    <div id="timer-overlay">
-      <div id="time-display" role="timer" aria-live="off">
-        <span id="time-mm">00</span><span id="time-colon">:</span><span id="time-ss">00</span>
+    <!-- Info bar: mode summary + daily count (idle screen only) -->
+    <div id="info-bar">
+      <span id="info-label"></span>
+      <span id="daily-count"></span>
+    </div>
+
+    <!-- Day summary (idle screen, wind-down only) -->
+    <div id="day-summary">
+      <div id="ds-title">Wind-down</div>
+      <div id="ds-stats"></div>
+      <div id="ds-note">A good stopping point. One more is fine — make it intentional.</div>
+      <button id="ds-triage" style="display:none"></button>
+    </div>
+
+    <!-- Day plan: Today + Later (idle screen only) -->
+    <div id="plan-wrap">
+      <div id="plan-head">
+        <span>Today's plan</span>
+        <span id="plan-count"></span>
       </div>
-      <div id="phase-label" aria-live="polite">Work</div>
-      <div id="session-text"></div>
-      <div id="pause-badge" aria-live="polite">Paused</div>
+      <ul id="plan-list" aria-label="Today's tasks"></ul>
+      <input id="plan-add" type="text" maxlength="60"
+        placeholder="Add a task…" aria-label="Add a task to today's plan" />
+      <div id="later-wrap">
+        <div id="later-head">
+          <button id="later-toggle" aria-expanded="false" aria-controls="later-list">
+            <i id="later-chevron" class="codicon codicon-chevron-right"></i>
+            <span id="later-label">Later</span>
+          </button>
+          <button id="later-clear" style="display:none">clear old</button>
+        </div>
+        <ul id="later-list" style="display:none" aria-label="Later tasks"></ul>
+      </div>
     </div>
-  </div>
 
-  <!-- Session dots -->
-  <div id="session-indicator" role="list" aria-label="Session progress"></div>
+    <!-- Intent line -->
+    <div id="task-wrap">
+      <input id="task-input" type="text" maxlength="60"
+        placeholder="What are you working on?"
+        aria-label="Current intent" />
+    </div>
 
-  <!-- Primary controls -->
-  <div id="controls">
-    <button id="btn-start" class="btn-primary" aria-label="Start timer">
-      <i class="codicon codicon-play"></i> Start
-    </button>
-    <button id="btn-pause" class="btn-secondary" style="display:none" aria-label="Pause timer">
-      <i class="codicon codicon-debug-pause"></i> Pause
-    </button>
-    <button id="btn-reset" class="btn-secondary" aria-label="Reset timer">
-      <i class="codicon codicon-debug-restart"></i> Reset
-    </button>
-  </div>
+    <!-- Break heading (break screen only) -->
+    <div id="break-heading">
+      <div id="break-title">Break time</div>
+      <div id="break-sub">Step away from the screen — your code will wait.</div>
+    </div>
 
-  <!-- Skip break -->
-  <div id="skip-wrap" style="display:none">
-    <button id="btn-skip" class="btn-secondary" aria-label="Skip break">
-      <i class="codicon codicon-debug-step-over"></i> Skip Break
-    </button>
-  </div>
+    <!-- Circular timer -->
+    <div id="timer-container">
+      <svg id="timer-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true">
+        <circle id="arc-track" cx="100" cy="100" r="80" />
+        <circle id="arc-progress" cx="100" cy="100" r="80" />
+      </svg>
+      <div id="timer-overlay">
+        <div id="time-display" role="timer" aria-live="off">
+          <span id="time-mm">00</span><span id="time-colon">:</span><span id="time-ss">00</span>
+        </div>
+        <div id="phase-label" aria-live="polite"></div>
+        <div id="pause-badge" aria-live="polite">Paused</div>
+      </div>
+    </div>
 
-  <!-- Custom settings panel -->
-  <div id="custom-settings" style="display:none">
-    <div class="custom-row">
-      <label for="inp-session">Session (min)</label>
-      <input id="inp-session" type="number" min="1" max="120" value="25" />
-      <span class="err" id="err-session"></span>
+    <!-- Session dots -->
+    <div id="session-indicator" role="list" aria-label="Session progress"></div>
+
+    <!-- Primary controls -->
+    <div id="controls">
+      <button id="btn-start" class="btn-primary" aria-label="Start timer">
+        <i class="codicon codicon-play"></i> <span id="btn-start-label">Start</span>
+      </button>
+      <button id="btn-pause" class="btn-secondary" style="display:none" aria-label="Pause timer">
+        <i class="codicon codicon-debug-pause"></i> Pause
+      </button>
+      <button id="btn-reset" class="btn-secondary" aria-label="Reset timer">
+        <i class="codicon codicon-debug-restart"></i> Reset
+      </button>
     </div>
-    <div class="custom-row">
-      <label for="inp-break">Break (min)</label>
-      <input id="inp-break" type="number" min="1" max="60" value="5" />
-      <span class="err" id="err-break"></span>
+
+    <!-- Waiting on AI (focus screen only) -->
+    <div id="micro-wrap">
+      <button id="btn-micro" class="btn-secondary"
+        title="Take a short micro-break while the AI works"
+        aria-label="Take a micro-break while waiting on AI">
+        Waiting on AI
+      </button>
     </div>
-    <div class="custom-row">
-      <label for="inp-long-break">Long break (min)</label>
-      <input id="inp-long-break" type="number" min="5" max="60" value="15" />
-      <span class="err" id="err-long-break"></span>
+
+    <!-- End micro-break (micro screen only) -->
+    <div id="micro-end-wrap">
+      <button id="btn-micro-end" class="btn-primary" aria-label="End micro-break">
+        <i class="codicon codicon-play"></i> I'm back
+      </button>
     </div>
-    <div class="custom-row">
-      <label for="inp-sessions">Sessions/round</label>
-      <input id="inp-sessions" type="number" min="1" max="10" value="4" />
-      <span class="err" id="err-sessions"></span>
+
+    <!-- Skip break (break screen only) -->
+    <div id="skip-wrap">
+      <button id="btn-skip" class="btn-secondary" aria-label="Skip break">
+        <i class="codicon codicon-debug-step-over"></i> Skip Break
+      </button>
+      <div id="skip-note" aria-live="polite"></div>
     </div>
-    <button id="btn-apply" class="btn-primary">Apply</button>
+
+    <!-- Weekly rhythm strip (idle screen only) -->
+    <div id="rhythm-wrap">
+      <div id="rhythm-head">
+        <span>Last 7 days</span>
+        <span id="rhythm-total"></span>
+      </div>
+      <div id="rhythm-bars" role="img" aria-label="Sessions per day, last 7 days"></div>
+    </div>
+
+    <!-- Custom timings, behind a disclosure (idle screen, Custom mode only) -->
+    <div id="custom-wrap">
+      <button id="custom-toggle" aria-expanded="false" aria-controls="custom-settings">
+        <i id="custom-chevron" class="codicon codicon-chevron-right"></i> Customize timings
+      </button>
+      <div id="custom-settings" style="display:none">
+        <div class="custom-row">
+          <label for="inp-session">Session (min)</label>
+          <input id="inp-session" type="number" min="1" max="120" value="25" />
+          <span class="err" id="err-session"></span>
+        </div>
+        <div class="custom-row">
+          <label for="inp-break">Break (min)</label>
+          <input id="inp-break" type="number" min="1" max="60" value="5" />
+          <span class="err" id="err-break"></span>
+        </div>
+        <div class="custom-row">
+          <label for="inp-long-break">Long break (min)</label>
+          <input id="inp-long-break" type="number" min="5" max="60" value="15" />
+          <span class="err" id="err-long-break"></span>
+        </div>
+        <div class="custom-row">
+          <label for="inp-sessions">Sessions/round</label>
+          <input id="inp-sessions" type="number" min="1" max="10" value="4" />
+          <span class="err" id="err-sessions"></span>
+        </div>
+        <button id="btn-apply" class="btn-primary">Apply</button>
+      </div>
+    </div>
+
   </div>
 
   <audio id="audio-player" preload="none"></audio>

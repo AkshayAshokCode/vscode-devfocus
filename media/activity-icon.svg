@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- The dial as wordmark: a 75% ring, gap at the top — rendered as a mask
+       by the Activity Bar, so single color and stroke only. -->
+  <circle cx="12" cy="12" r="8.5" fill="none" stroke="#ffffff" stroke-width="2.6"
+    stroke-linecap="round" stroke-dasharray="40 13.4" transform="rotate(-90 12 12)" />
+</svg>

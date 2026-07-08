@@ -37,8 +37,45 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('devfocus.toggle', () => timerService.toggle()),
     vscode.commands.registerCommand('devfocus.reset',  () => timerService.reset()),
     vscode.commands.registerCommand('devfocus.skipBreak', () => timerService.skipBreak()),
+    vscode.commands.registerCommand('devfocus.microBreak', () => timerService.microBreak()),
+    vscode.commands.registerCommand('devfocus.captureTask', async () => {
+      const label = await vscode.window.showInputBox({
+        prompt: 'Add to Later — a thought for another time',
+        placeHolder: 'e.g. fix the flaky e2e test',
+      });
+      if (label && !timerService.captureLater(label)) {
+        vscode.window.showInformationMessage('Later is full — clear something first.');
+      }
+    }),
     vscode.commands.registerCommand('devfocus.openPanel', () => {
       vscode.commands.executeCommand('devfocus-sidebar.focus');
+    }),
+  );
+
+  // URI hooks so external tools (AI agent hooks, scripts) can drive DevFocus:
+  //   vscode://akshayashokcode.devfocus/micro-break  — toggle a micro-break
+  //   vscode://akshayashokcode.devfocus/agent-start  — agent began a long run; suggest a micro-break
+  //   vscode://akshayashokcode.devfocus/agent-done   — agent finished; end the micro-break if one is running
+  context.subscriptions.push(
+    vscode.window.registerUriHandler({
+      handleUri(uri: vscode.Uri): void {
+        switch (uri.path) {
+          case '/micro-break':
+            timerService.microBreak();
+            break;
+          case '/agent-start':
+            notificationService.show(
+              "Agent's working — rest your eyes?",
+              '',
+              'Micro-break',
+              () => timerService.microBreak(),
+            );
+            break;
+          case '/agent-done':
+            timerService.endMicroBreakIfActive();
+            break;
+        }
+      },
     }),
   );
 

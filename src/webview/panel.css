@@ -13,9 +13,139 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 8px;
-  gap: 8px;
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* ── Screen switching ────────────────────── */
+/* One state, one screen: body.screen-{setup|idle|focus|break} decides
+   which elements are visible. */
+
+#setup-screen { display: none; }
+body.screen-setup #setup-screen { display: flex; }
+body.screen-setup #main-screens { display: none !important; }
+
+#main-screens {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 380px; /* keep the column tidy when the panel is wide */
+}
+
+/* Focus, break & micro screens are minimal: no mode selector, no info bar */
+body.screen-focus #mode-select,
+body.screen-break #mode-select,
+body.screen-micro #mode-select,
+body.screen-focus #info-bar,
+body.screen-break #info-bar,
+body.screen-micro #info-bar { display: none; }
+
+body.screen-focus #top-bar,
+body.screen-break #top-bar,
+body.screen-micro #top-bar { justify-content: flex-end; }
+
+/* Intent line is hidden during breaks — the break is the message */
+body.screen-break #task-wrap,
+body.screen-micro #task-wrap { display: none; }
+
+/* Micro-break screen: heading + arc + "I'm back" only */
+#micro-wrap { display: none; }
+body.screen-focus #micro-wrap { display: flex; justify-content: center; width: 100%; }
+#btn-micro { font-size: 11px; padding: 3px 10px; opacity: 0.85; }
+#btn-micro:hover { opacity: 1; }
+
+#micro-end-wrap { display: none; }
+body.screen-micro #micro-end-wrap { display: flex; justify-content: center; width: 100%; }
+body.screen-micro #controls { display: none; }
+body.screen-micro #break-heading { display: block; }
+body.screen-micro #arc-progress { stroke: var(--vscode-foreground); opacity: 0.55; }
+
+/* Skip break only makes sense on the break screen */
+#skip-wrap { display: none; }
+body.screen-break #skip-wrap { display: flex; }
+body.screen-break #btn-reset { display: none; }
+
+/* Break heading only on the break screen */
+#break-heading { display: none; }
+body.screen-break #break-heading { display: block; }
+
+/* Custom timings disclosure: idle screen + Custom mode only */
+#custom-wrap { display: none; }
+body.screen-idle.mode-custom #custom-wrap { display: flex; }
+
+/* Day summary: idle screen during wind-down only */
+#day-summary { display: none; }
+body.screen-idle.wind-down #day-summary { display: flex; }
+
+/* Weekly rhythm strip: idle screen only */
+#rhythm-wrap { display: none; }
+body.screen-idle #rhythm-wrap { display: flex; }
+
+/* Day plan: idle screen only — it absorbs the intent input there */
+#plan-wrap { display: none; }
+body.screen-idle #plan-wrap { display: flex; }
+body.screen-idle #task-wrap { display: none; }
+
+/* ── Setup screen ────────────────────────── */
+#setup-screen {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 380px;
+  padding-top: 20px;
+  text-align: center;
+}
+
+#setup-hero { color: var(--vscode-focusBorder, #0078d4); display: flex; }
+
+#setup-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#setup-sub {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+#mode-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 230px;
+  margin-top: 8px;
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  text-align: left;
+  background: var(--vscode-editorWidget-background, var(--vscode-input-background));
+  border: 1px solid var(--vscode-widget-border, #444);
+  border-radius: 2px;
+  color: var(--vscode-foreground);
+  cursor: pointer;
+}
+.mode-card:hover {
+  border-color: var(--vscode-focusBorder);
+  background: var(--vscode-list-hoverBackground);
+}
+
+.mode-card-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mode-card-desc {
+  font-size: 10.5px;
+  color: var(--vscode-descriptionForeground);
 }
 
 /* ── Top bar ─────────────────────────────── */
@@ -33,7 +163,7 @@ body {
   color: var(--vscode-dropdown-foreground);
   border: 1px solid var(--vscode-dropdown-border);
   padding: 3px 6px;
-  border-radius: 3px;
+  border-radius: 2px;
   font-size: inherit;
   cursor: pointer;
 }
@@ -46,7 +176,7 @@ body {
   cursor: pointer;
   font-size: 15px;
   padding: 3px 5px;
-  border-radius: 3px;
+  border-radius: 2px;
   opacity: 0.7;
   display: flex;
   align-items: center;
@@ -69,7 +199,171 @@ body.sound-off #sound-btn:hover { opacity: 0.8; }
   color: var(--vscode-descriptionForeground);
 }
 
-/* ── Task input ──────────────────────────── */
+/* ── Day summary ─────────────────────────── */
+#day-summary {
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 12px;
+  text-align: center;
+  border: 1px solid var(--vscode-widget-border, #444);
+  border-radius: 2px;
+  background: var(--vscode-editorWidget-background, var(--vscode-input-background));
+}
+
+#ds-title {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--vscode-descriptionForeground);
+}
+
+#ds-stats {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+#ds-note {
+  font-size: 10.5px;
+  color: var(--vscode-descriptionForeground);
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+/* ── Day plan (Today + Later) ────────────── */
+#plan-wrap {
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+#plan-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground);
+}
+
+#plan-count { font-variant-numeric: tabular-nums; }
+
+#plan-list, #later-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  min-height: 22px;
+  border-radius: 2px;
+  font-size: 11.5px;
+}
+.task-row:hover { background: var(--vscode-list-hoverBackground); }
+.task-row.active { box-shadow: inset 2px 0 0 var(--vscode-focusBorder, #0078d4); }
+
+.task-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--vscode-foreground);
+  font-size: inherit;
+  padding: 0;
+}
+.task-row.done .task-label {
+  text-decoration: line-through;
+  opacity: 0.55;
+  cursor: default;
+}
+.task-row.stale { opacity: 0.5; }
+
+.task-sess {
+  font-size: 9.5px;
+  color: var(--vscode-descriptionForeground);
+  font-variant-numeric: tabular-nums;
+}
+
+.task-check, .task-act {
+  background: none;
+  border: none;
+  color: var(--vscode-foreground);
+  cursor: pointer;
+  padding: 1px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  border-radius: 2px;
+}
+.task-check { opacity: 0.7; }
+.task-check:hover { opacity: 1; }
+.task-act { opacity: 0; }
+.task-row:hover .task-act,
+.task-row:focus-within .task-act { opacity: 0.6; }
+.task-act:hover { opacity: 1 !important; background: var(--vscode-toolbar-hoverBackground); }
+.task-act:disabled { opacity: 0 !important; cursor: default; }
+
+#plan-add {
+  width: 100%;
+  background: transparent;
+  color: var(--vscode-input-foreground);
+  border: 1px dashed var(--vscode-widget-border, #444);
+  border-radius: 2px;
+  padding: 3px 7px;
+  font-size: 11px;
+  font-family: inherit;
+  outline: none;
+}
+#plan-add:focus {
+  border-style: solid;
+  border-color: var(--vscode-focusBorder);
+  background: var(--vscode-input-background);
+}
+#plan-add::placeholder { color: var(--vscode-input-placeholderForeground); }
+
+#later-wrap { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+#later-head { display: flex; justify-content: space-between; align-items: center; }
+#later-toggle, #later-clear {
+  background: none;
+  border: none;
+  color: var(--vscode-descriptionForeground);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+#later-toggle:hover, #later-clear:hover { color: var(--vscode-foreground); }
+
+#ds-triage {
+  background: none;
+  border: none;
+  color: var(--vscode-descriptionForeground);
+  cursor: pointer;
+  font-size: 10.5px;
+  text-decoration: underline;
+  padding: 2px 0;
+}
+#ds-triage:hover { color: var(--vscode-foreground); }
+
+/* ── Intent input ────────────────────────── */
 #task-wrap {
   width: 100%;
 }
@@ -79,7 +373,7 @@ body.sound-off #sound-btn:hover { opacity: 0.8; }
   background: var(--vscode-input-background);
   color: var(--vscode-input-foreground);
   border: 1px solid var(--vscode-input-border, var(--vscode-widget-border));
-  border-radius: 3px;
+  border-radius: 2px;
   padding: 4px 7px;
   font-size: 11px;
   font-family: inherit;
@@ -90,6 +384,40 @@ body.sound-off #sound-btn:hover { opacity: 0.8; }
 }
 #task-input::placeholder {
   color: var(--vscode-input-placeholderForeground);
+}
+
+/* On the focus screen the intent is promoted: quiet chrome, larger, centered */
+body.screen-focus #task-input {
+  text-align: center;
+  font-size: 12.5px;
+  background: transparent;
+  border-color: transparent;
+}
+body.screen-focus #task-input:hover {
+  border-color: var(--vscode-input-border, var(--vscode-widget-border));
+}
+body.screen-focus #task-input:focus {
+  border-color: var(--vscode-focusBorder);
+  background: var(--vscode-input-background);
+}
+
+/* ── Break heading ───────────────────────── */
+#break-heading {
+  text-align: center;
+  margin-top: 4px;
+  max-width: 230px;
+}
+
+#break-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#break-sub {
+  font-size: 10.5px;
+  color: var(--vscode-descriptionForeground);
+  margin-top: 3px;
+  line-height: 1.5;
 }
 
 /* ── Timer container ─────────────────────── */
@@ -124,11 +452,6 @@ body.sound-off #sound-btn:hover { opacity: 0.8; }
   transition: stroke-dashoffset 0.8s linear, stroke 0.4s ease, opacity 0.4s ease;
 }
 
-/* Paused: dim the arc */
-body.state-paused #arc-progress {
-  opacity: 0.45;
-}
-
 /* Phase transition pulse */
 @keyframes arc-pulse {
   0%   { stroke-width: 8;  opacity: 1; }
@@ -139,10 +462,13 @@ body.state-paused #arc-progress {
   animation: arc-pulse 0.55s ease-out forwards;
 }
 
-/* Phase colors */
-body.phase-work       #arc-progress { stroke: var(--vscode-charts-blue,   #4fc3f7); }
-body.phase-break      #arc-progress { stroke: var(--vscode-charts-orange, #ffa726); }
-body.phase-long-break #arc-progress { stroke: var(--vscode-charts-purple, #ab47bc); }
+/* State = fill vs intensity, not hue. Signal color only while focus is live. */
+body.phase-work       #arc-progress { stroke: var(--vscode-focusBorder, #0078d4); }
+body.phase-break      #arc-progress { stroke: var(--vscode-foreground); opacity: 0.55; }
+body.phase-long-break #arc-progress { stroke: var(--vscode-foreground); opacity: 0.35; }
+
+/* Paused dims whatever is showing — must win over the phase intensities above */
+body.state-paused #arc-progress { opacity: 0.5; }
 
 #timer-overlay {
   position: absolute;
@@ -154,10 +480,10 @@ body.phase-long-break #arc-progress { stroke: var(--vscode-charts-purple, #ab47b
 }
 
 #time-display {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: 34px;
+  font-weight: 200;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   transition: opacity 0.3s;
 }
 
@@ -176,29 +502,25 @@ body.state-running #time-colon {
 }
 
 #phase-label {
-  font-size: 12px;
+  font-size: 10px;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.8;
-}
-
-#session-text {
-  font-size: 11px;
-  opacity: 0.6;
+  letter-spacing: 2px;
+  color: var(--vscode-descriptionForeground);
 }
 
 /* Pause badge */
 #pause-badge {
   display: none;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
+  font-weight: 500;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--vscode-charts-orange, #ffa726);
+  color: var(--vscode-descriptionForeground);
   margin-top: 2px;
 }
 
-/* ── Session dots ───────────────────────── */
+/* ── Session segments (instrument tick-marks) ── */
 #session-indicator {
   display: flex;
   gap: 5px;
@@ -207,28 +529,34 @@ body.state-running #time-colon {
 }
 
 .session-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 16px;
+  height: 3px;
+  border-radius: 1px;
   background: var(--vscode-widget-border, #555);
-  transition: background 0.3s;
+  transition: background 0.3s, opacity 0.3s;
 }
-.session-dot.done    { background: var(--vscode-charts-blue,  #4fc3f7); }
-.session-dot.current { background: var(--vscode-charts-green, #66bb6a); }
+.session-dot.done    { background: var(--vscode-focusBorder, #0078d4); }
+.session-dot.current { background: var(--vscode-focusBorder, #0078d4); opacity: 0.45; }
 
 /* ── Buttons ────────────────────────────── */
 #controls, #skip-wrap {
-  display: flex;
   gap: 6px;
   flex-wrap: wrap;
   justify-content: center;
   width: 100%;
 }
+#controls { display: flex; }
+#skip-wrap { flex-direction: column; align-items: center; gap: 4px; }
+
+#skip-note {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+  text-align: center;
+}
 
 button {
   border: none;
-  border-radius: 3px;
-  padding: 5px 12px;
+  border-radius: 2px;
   font-size: 12px;
   cursor: pointer;
   font-family: inherit;
@@ -237,8 +565,12 @@ button {
   align-items: center;
   gap: 5px;
 }
-button:hover  { opacity: 0.85; }
-button:active { opacity: 0.7; }
+
+.btn-primary, .btn-secondary {
+  padding: 5px 12px;
+}
+.btn-primary:hover, .btn-secondary:hover { opacity: 0.85; }
+.btn-primary:active, .btn-secondary:active { opacity: 0.7; }
 
 .btn-primary {
   background: var(--vscode-button-background);
@@ -252,7 +584,76 @@ button:active { opacity: 0.7; }
 }
 .btn-secondary:hover { background: var(--vscode-button-secondaryHoverBackground, #45494e); }
 
-/* ── Custom settings ────────────────────── */
+/* ── Weekly rhythm strip ────────────────── */
+#rhythm-wrap {
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  margin-top: 2px;
+}
+
+#rhythm-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--vscode-descriptionForeground);
+}
+
+
+#rhythm-bars {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 6px;
+}
+
+.rhythm-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.rhythm-bar {
+  width: 12px;
+  border-radius: 2px 2px 1px 1px;
+  background: var(--vscode-focusBorder, #0078d4);
+  opacity: 0.5;
+  transition: height 0.3s ease;
+}
+.rhythm-col.today .rhythm-bar { opacity: 1; }
+.rhythm-bar.empty {
+  background: var(--vscode-widget-border, #555);
+  border-radius: 1px;
+}
+
+.rhythm-day {
+  font-size: 9px;
+  color: var(--vscode-descriptionForeground);
+}
+.rhythm-col.today .rhythm-day {
+  color: var(--vscode-foreground);
+  font-weight: 600;
+}
+
+/* ── Custom timings disclosure ──────────── */
+#custom-wrap {
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+#custom-toggle {
+  background: none;
+  color: var(--vscode-descriptionForeground);
+  font-size: 11px;
+  padding: 2px 0;
+}
+#custom-toggle:hover { color: var(--vscode-foreground); }
+
 #custom-settings {
   width: 100%;
   display: flex;
@@ -260,7 +661,7 @@ button:active { opacity: 0.7; }
   gap: 6px;
   padding: 8px;
   border: 1px solid var(--vscode-widget-border);
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .custom-row {
@@ -280,7 +681,7 @@ button:active { opacity: 0.7; }
   background: var(--vscode-input-background);
   color: var(--vscode-input-foreground);
   border: 1px solid var(--vscode-input-border, var(--vscode-widget-border));
-  border-radius: 3px;
+  border-radius: 2px;
   padding: 3px 5px;
   font-size: 11px;
   font-family: inherit;
@@ -301,12 +702,16 @@ button:active { opacity: 0.7; }
 /* Compact: w<160 or h<160 — only arc + controls */
 body.layout-compact #top-bar,
 body.layout-compact #info-bar,
+body.layout-compact #day-summary,
+body.layout-compact #rhythm-wrap,
+body.layout-compact #plan-wrap,
+body.layout-compact #micro-wrap,
 body.layout-compact #task-wrap,
+body.layout-compact #break-heading,
 body.layout-compact #session-indicator,
-body.layout-compact #custom-settings,
+body.layout-compact #custom-wrap,
 body.layout-compact #skip-wrap,
 body.layout-compact #phase-label,
-body.layout-compact #session-text,
 body.layout-compact #pause-badge {
   display: none !important;
 }
@@ -318,10 +723,18 @@ body.layout-compact #timer-svg {
 
 body.layout-compact #time-display {
   font-size: 22px;
+  font-weight: 300;
+}
+
+/* ── Reduced motion ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body.state-running #time-colon { animation: none; }
+  #arc-progress.phase-pulse { animation: none; }
+  #arc-progress { transition: none; }
 }
 
 /* Horizontal: w > h — timer left, controls right */
-body.layout-horizontal {
+body.layout-horizontal #main-screens {
   flex-direction: row;
   align-items: flex-start;
   flex-wrap: wrap;
@@ -339,10 +752,17 @@ body.layout-horizontal #controls {
 
 body.layout-horizontal #top-bar,
 body.layout-horizontal #info-bar,
+body.layout-horizontal #day-summary,
+body.layout-horizontal #plan-wrap,
 body.layout-horizontal #task-wrap,
+body.layout-horizontal #break-heading,
 body.layout-horizontal #session-indicator,
 body.layout-horizontal #skip-wrap,
-body.layout-horizontal #custom-settings {
+body.layout-horizontal #custom-wrap {
   flex: 0 0 100%;
   order: -1;
+}
+
+body.layout-horizontal #rhythm-wrap {
+  flex: 0 0 100%;
 }

@@ -25,6 +25,30 @@ export interface PomodoroSettings {
   longBreakAfter: number;
 }
 
+export interface DailyRecord {
+  date: string; // YYYY-MM-DD (UTC, matching lastSessionDate)
+  sessions: number;
+  focusMs: number;
+  breaksTaken: number;
+  breaksSkipped: number;
+  tasksPlanned?: number;
+  tasksDone?: number;
+}
+
+export interface PlanTask {
+  id: string;
+  label: string;
+  done: boolean;
+  sessions: number;
+}
+
+export interface LaterTask {
+  id: string;
+  label: string;
+  addedDate: string; // YYYY-MM-DD
+  sessions?: number; // survives a same-day Today→Later→Today round trip; cleared at rollover
+}
+
 export interface TimerSnapshot {
   state: TimerState;
   phase: TimerPhase;
@@ -33,9 +57,19 @@ export interface TimerSnapshot {
   currentSession: number;
   settings: PomodoroSettings;
   dailyCount: number;
+  dailyGoal: number;
+  focusMsToday: number;
+  breaksSkippedToday: number;
+  windDown: boolean;
+  history: DailyRecord[];
+  microBreakActive: boolean;
+  planTasks: PlanTask[];
+  activeTaskId: string | null;
+  laterTasks: LaterTask[];
   soundEnabled: boolean;
   autoStartNextSession: boolean;
   taskLabel: string;
+  firstRun: boolean;
 }
 
 export interface PersistedState {
@@ -45,6 +79,13 @@ export interface PersistedState {
   timerWasRunning: boolean;
   settings: PomodoroSettings;
   completedSessionsToday: number;
+  breaksSkippedToday: number;
+  breaksTakenToday: number;
+  focusMsToday: number;
+  history: DailyRecord[];
+  planTasks: PlanTask[];
+  activeTaskId: string | null;
+  laterTasks: LaterTask[];
   lastSessionDate: string;
   soundEnabled: boolean;
   autoStartNextSession: boolean;
@@ -60,8 +101,17 @@ export type WebToExtMsg =
   | { type: 'pause' }
   | { type: 'reset' }
   | { type: 'skipBreak' }
+  | { type: 'microBreak' }
   | { type: 'toggleSound' }
   | { type: 'setTask'; label: string }
+  | { type: 'addTask'; label: string }
+  | { type: 'toggleTaskDone'; id: string }
+  | { type: 'setActiveTask'; id: string }
+  | { type: 'demoteTask'; id: string }
+  | { type: 'promoteTask'; id: string }
+  | { type: 'deleteLaterTask'; id: string }
+  | { type: 'clearOldLater' }
+  | { type: 'triageOpenTasks' }
   | { type: 'applyMode'; mode: PomodoroMode }
   | { type: 'applyCustomSettings'; sessionMinutes: number; breakMinutes: number; sessionsPerRound: number; longBreakMinutes: number }
   | { type: 'openSettings' };
