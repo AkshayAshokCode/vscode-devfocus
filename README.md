@@ -6,12 +6,6 @@
 
 A Pomodoro timer built for developers, living right inside VSCode and Cursor.
 
-## Screenshots
-
-| Timer running | Break phase | Status bar |
-|---|---|---|
-| ![Timer running](images/screenshot-work.png) | ![Break phase](images/screenshot-break.png) | ![Status bar](images/screenshot-statusbar.png) |
-
 ## Features
 
 - **Three modes** — Classic (25/5 min), Deep Work (50/10 min), and fully Custom
