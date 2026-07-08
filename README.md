@@ -1,7 +1,6 @@
 # DevFocus
 
 [![VS Code Marketplace Version](https://vsmarketplacebadges.dev/version-short/akshayashokcode.devfocus.png)](https://marketplace.visualstudio.com/items?itemName=akshayashokcode.devfocus)
-[![VS Code Marketplace Installs](https://vsmarketplacebadges.dev/installs-short/akshayashokcode.devfocus.png)](https://marketplace.visualstudio.com/items?itemName=akshayashokcode.devfocus)
 [![Open VSX Version](https://img.shields.io/open-vsx/v/akshayashokcode/devfocus?label=Open%20VSX&logo=eclipseide)](https://open-vsx.org/extension/akshayashokcode/devfocus)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/akshayashokcode/devfocus?label=Cursor%20Downloads)](https://open-vsx.org/extension/akshayashokcode/devfocus)
 
