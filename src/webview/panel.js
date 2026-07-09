@@ -35,6 +35,7 @@
   const modeSelect     = document.getElementById('mode-select');
   const settingsBtn    = document.getElementById('settings-btn');
   const soundBtn       = document.getElementById('sound-btn');
+  const taskWrap       = document.getElementById('task-wrap');
   const taskInput      = document.getElementById('task-input');
   const intentDone     = document.getElementById('intent-done');
   const btnStart       = document.getElementById('btn-start');
@@ -269,9 +270,11 @@
       taskInput.value = taskLabel;
     }
 
-    // Mid-session completion: the active task is checkable right on the intent line
+    // Mid-session completion: the active task is checkable right on the intent
+    // line — which then reads as a task row (check + left text), not a centered line
     const showIntentDone = screen === 'focus' && !!activeTaskId;
     intentDone.style.display = showIntentDone ? '' : 'none';
+    taskWrap.classList.toggle('has-check', showIntentDone);
     if (showIntentDone) {
       const doneTitle = `Mark "${taskLabel}" done`;
       intentDone.title = doneTitle;

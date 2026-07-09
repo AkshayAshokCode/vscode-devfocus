@@ -409,7 +409,13 @@ body.sound-off #sound-btn:hover { opacity: 0.8; }
   color: var(--vscode-input-placeholderForeground);
 }
 
-/* On the focus screen the intent is promoted: quiet chrome, larger, centered */
+/* On the focus screen the intent is promoted: quiet chrome, larger, centered —
+   unless it's a completable task, where check + text sit together like a task row */
+body.screen-focus #task-wrap.has-check { justify-content: center; }
+body.screen-focus #task-wrap.has-check #task-input {
+  flex: 0 1 auto;
+  text-align: left;
+}
 body.screen-focus #task-input {
   flex: 1;
   text-align: center;
