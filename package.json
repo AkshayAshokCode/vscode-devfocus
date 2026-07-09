@@ -1,7 +1,7 @@
 {
   "name": "devfocus",
   "displayName": "DevFocus",
-  "description": "Pomodoro timer for developers — structured focus sessions and breaks",
+  "description": "Focus timer and day plan for engineers working with AI — sessions, real breaks, and a defensible end to the day",
   "version": "1.2.1",
   "publisher": "akshayashokcode",
   "icon": "media/icon.png",
@@ -14,7 +14,8 @@
     "pomodoro",
     "timer",
     "productivity",
-    "focus"
+    "focus",
+    "ai"
   ],
   "engines": {
     "vscode": "^1.85.0"
