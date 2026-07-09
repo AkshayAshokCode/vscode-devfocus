@@ -233,9 +233,10 @@ Reading order == visual order == DOM order on every screen.
 | Dial tick | 800ms linear | every second |
 | Dial intensity/color | 400ms ease | phase change |
 | Pulse | 550ms ease-out, once | phase change |
-| Colon blink | 1s step-end loop | running only |
 
-`prefers-reduced-motion`: blink and pulse removed; dial updates jump.
+No colon blink — the ticking seconds already say "running", a 1 Hz blink is a
+peripheral-attention magnet in an ambient tool, and every screenshot catches it
+half-off. `prefers-reduced-motion`: pulse removed; dial updates jump.
 No parallax, no springs, no confetti — ever (§UX 13).
 
 ---

@@ -259,8 +259,9 @@ otherwise start/pause. One key, always "do the obvious thing".
 
 ## 10. Motion, sound, accessibility
 
-- **Motion**: arc progress eases; phase change pulses once. Colon blink and pulse
-  are disabled under `prefers-reduced-motion`. Nothing else moves.
+- **Motion**: arc progress eases; phase change pulses once (disabled under
+  `prefers-reduced-motion`). Nothing else moves — no blinking: the ticking
+  seconds already signal "running".
 - **Sound**: three cues, all < 1 s, soft attack (session end, break end, round
   complete). One-click mute in the panel, synced to settings. Trim `complete.wav`
   (currently 1.1 MB — most of the extension's download size).

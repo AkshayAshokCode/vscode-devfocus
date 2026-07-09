@@ -2,6 +2,9 @@
 
 ## [1.2.2] - 2026-07-08
 
+### Changed
+- Removed the blinking timer colon — the ticking seconds already signal "running", and a 1 Hz blink fights the panel's ambient design (it also made every screenshot look broken)
+
 ### Fixed
 - Focus arc, session segments, and rhythm bars were nearly invisible on Cursor's default themes — the signal color used `focusBorder`, which Cursor Dark defines at 15% alpha (and Cursor Dark Midnight as fully transparent); the signal now uses `progressBar.background`, which every theme must keep visible
 

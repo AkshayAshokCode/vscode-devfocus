@@ -495,15 +495,6 @@ body.state-paused #time-display {
   opacity: 0.5;
 }
 
-/* Blinking colon while running */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-body.state-running #time-colon {
-  animation: blink 1s step-end infinite;
-}
-
 #phase-label {
   font-size: 10px;
   font-weight: 500;
@@ -731,7 +722,6 @@ body.layout-compact #time-display {
 
 /* ── Reduced motion ─────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  body.state-running #time-colon { animation: none; }
   #arc-progress.phase-pulse { animation: none; }
   #arc-progress { transition: none; }
 }
