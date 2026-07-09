@@ -27,10 +27,7 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
 
     webview.options = {
       enableScripts: true,
-      localResourceRoots: [
-        vscode.Uri.joinPath(extensionUri, 'src', 'webview'),
-        vscode.Uri.joinPath(extensionUri, 'media'),
-      ],
+      localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'src', 'webview')],
     };
 
     webview.html = this.buildHtml(webview, extensionUri);
@@ -80,14 +77,6 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
 
   postSnapshot(snap: TimerSnapshot): void {
     this.view?.webview.postMessage({ type: 'timerUpdate', payload: snap });
-  }
-
-  postPlaySound(sound: 'work' | 'break' | 'complete'): void {
-    if (!this.view) return;
-    const soundUri = this.view.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.context.extensionUri, 'media', `${sound}.wav`),
-    );
-    this.view.webview.postMessage({ type: 'playSound', uri: soundUri.toString() });
   }
 
   private buildHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {

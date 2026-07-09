@@ -2,10 +2,12 @@ import * as vscode from 'vscode';
 import { TimerService } from './TimerService';
 import { StatusBarController } from './StatusBarController';
 import { NotificationService } from './NotificationService';
+import { SoundService } from './SoundService';
 import { WebViewPanel } from './WebViewPanel';
 
 export function activate(context: vscode.ExtensionContext): void {
   const notificationService = new NotificationService();
+  const soundService = new SoundService(context);
   const timerService = new TimerService(context);
   const statusBar = new StatusBarController(context);
   const webViewPanel = new WebViewPanel(context, timerService);
@@ -16,8 +18,11 @@ export function activate(context: vscode.ExtensionContext): void {
     webViewPanel.postSnapshot(snap);
   };
 
+  // Sound plays from the extension host, not the webview — the status bar is
+  // the primary surface, so playback must not depend on the panel ever having
+  // been opened.
   timerService.onPlaySound = sound => {
-    webViewPanel.postPlaySound(sound);
+    soundService.play(sound);
   };
 
   timerService.onNotify = (title, body, actionText, actionCallback) => {

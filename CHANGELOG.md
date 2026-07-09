@@ -2,6 +2,9 @@
 
 ## [1.2.2] - 2026-07-08
 
+### Fixed
+- Sound cues never played unless the DevFocus panel had been opened at least once — playback lived entirely in the webview (extensions can't play audio directly), so `postPlaySound` silently no-op'd for anyone running status-bar-first, which is the product's primary intended workflow. Sound now plays from the extension host via the OS's native player (`afplay`/PowerShell `SoundPlayer`/`paplay`), independent of whether the panel has ever been opened
+
 ### Added
 - Mark the active task done without stopping the timer — a check-circle sits next to the intent on the focus screen (also `DevFocus: Complete Active Task` in the Command Palette); the next open task becomes the intent and the session keeps running
 - Pausing now reveals the day plan, so switching tasks mid-round never requires ending the session

@@ -93,8 +93,7 @@ export interface PersistedState {
 }
 
 export type ExtToWebMsg =
-  | { type: 'timerUpdate'; payload: TimerSnapshot }
-  | { type: 'playSound'; uri: string };
+  | { type: 'timerUpdate'; payload: TimerSnapshot };
 
 export type WebToExtMsg =
   | { type: 'start' }

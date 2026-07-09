@@ -75,7 +75,6 @@
   const errLongBreak   = document.getElementById('err-long-break');
   const errSessions    = document.getElementById('err-sessions');
   const btnApply       = document.getElementById('btn-apply');
-  const audioPlayer    = document.getElementById('audio-player');
 
   let lastMode = null;
   let lastPhase = null;
@@ -101,12 +100,12 @@
   ro.observe(document.body);
 
   // ── Message handler ───────────────────────────────────────────
+  // Sound plays from the extension host now (works even if this panel has
+  // never been opened), so the webview only ever receives timer updates.
   window.addEventListener('message', event => {
     const msg = event.data;
     if (msg.type === 'timerUpdate') {
       applySnapshot(msg.payload);
-    } else if (msg.type === 'playSound') {
-      playSound(msg.uri);
     }
   });
 
@@ -376,12 +375,7 @@
     }
   }
 
-  function playSound(uri) {
-    audioPlayer.src = uri;
-    audioPlayer.play().catch(() => {});
-  }
-
-  // ── Day plan (Today + Later) ──────────────────────────────────
+// ── Day plan (Today + Later) ──────────────────────────────────
   const PLAN_MAX = 5;
   const STALE_DAYS = 7;
   let planKey = '';
