@@ -76,7 +76,7 @@ The four-hue semantic palette is retired. Two channels only:
 
 | Role | Token | Fallback | Meaning |
 |---|---|---|---|
-| **Signal** | `--vscode-focusBorder` | `#0078d4` | *focus is live*: focus arc, done segments, rhythm bars |
+| **Signal** | `--vscode-progressBar-background` (fallback `focusBorder`) | `#0078d4` | *focus is live*: focus arc, done segments, rhythm bars. `progressBar.background` because themes must keep it visible — Cursor's defaults set `focusBorder` at 15% alpha or fully transparent |
 | Ink | `--vscode-foreground` | — | primary text; recovery arcs (at reduced intensity) |
 | Ink-2 | `--vscode-descriptionForeground` | — | secondary text, labels |
 | Structure | `--vscode-widget-border` | `#444` | borders, tracks, pending segments |
@@ -243,8 +243,9 @@ No parallax, no springs, no confetti — ever (§UX 13).
 ## 8. Theming discipline
 
 - Dark, light, high-contrast from the same rules — tokens only, zero per-theme CSS.
-- The signal color is the theme's own `focusBorder`: DevFocus inherits each
-  theme's accent rather than imposing one.
+- The signal color is the theme's own `progressBar.background`: DevFocus inherits
+  each theme's progress color rather than imposing one — and unlike `focusBorder`,
+  themes are forced to keep it visible.
 - High contrast: every interactive element has a border or outline; verify the
   focus ring on all five screens.
 

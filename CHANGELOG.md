@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.2] - 2026-07-08
+
+### Fixed
+- Focus arc, session segments, and rhythm bars were nearly invisible on Cursor's default themes — the signal color used `focusBorder`, which Cursor Dark defines at 15% alpha (and Cursor Dark Midnight as fully transparent); the signal now uses `progressBar.background`, which every theme must keep visible
+
 ## [1.2.1] - 2026-07-08
 
 ### Fixed

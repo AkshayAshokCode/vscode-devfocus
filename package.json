@@ -2,7 +2,7 @@
   "name": "devfocus",
   "displayName": "DevFocus",
   "description": "Focus timer and day plan for engineers working with AI — sessions, real breaks, and a defensible end to the day",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "publisher": "akshayashokcode",
   "icon": "media/icon.png",
   "license": "MIT",

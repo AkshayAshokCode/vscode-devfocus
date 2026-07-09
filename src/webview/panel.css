@@ -5,6 +5,9 @@
 }
 
 body {
+  /* The signal color: the theme's own progress color. focusBorder is unusable —
+     Cursor's default themes define it at 15% alpha or fully transparent. */
+  --df-signal: var(--vscode-progressBar-background, var(--vscode-focusBorder, #0078d4));
   font-family: var(--vscode-font-family);
   font-size: var(--vscode-font-size);
   color: var(--vscode-foreground);
@@ -99,7 +102,7 @@ body.screen-idle #task-wrap { display: none; }
   text-align: center;
 }
 
-#setup-hero { color: var(--vscode-focusBorder, #0078d4); display: flex; }
+#setup-hero { color: var(--df-signal); display: flex; }
 
 #setup-title {
   font-size: 13px;
@@ -134,7 +137,7 @@ body.screen-idle #task-wrap { display: none; }
   cursor: pointer;
 }
 .mode-card:hover {
-  border-color: var(--vscode-focusBorder);
+  border-color: var(--df-signal);
   background: var(--vscode-list-hoverBackground);
 }
 
@@ -269,7 +272,7 @@ body.sound-off #sound-btn:hover { opacity: 0.8; }
   font-size: 11.5px;
 }
 .task-row:hover { background: var(--vscode-list-hoverBackground); }
-.task-row.active { box-shadow: inset 2px 0 0 var(--vscode-focusBorder, #0078d4); }
+.task-row.active { box-shadow: inset 2px 0 0 var(--df-signal); }
 
 .task-label {
   flex: 1;
@@ -463,7 +466,7 @@ body.screen-focus #task-input:focus {
 }
 
 /* State = fill vs intensity, not hue. Signal color only while focus is live. */
-body.phase-work       #arc-progress { stroke: var(--vscode-focusBorder, #0078d4); }
+body.phase-work       #arc-progress { stroke: var(--df-signal); }
 body.phase-break      #arc-progress { stroke: var(--vscode-foreground); opacity: 0.55; }
 body.phase-long-break #arc-progress { stroke: var(--vscode-foreground); opacity: 0.35; }
 
@@ -535,8 +538,8 @@ body.state-running #time-colon {
   background: var(--vscode-widget-border, #555);
   transition: background 0.3s, opacity 0.3s;
 }
-.session-dot.done    { background: var(--vscode-focusBorder, #0078d4); }
-.session-dot.current { background: var(--vscode-focusBorder, #0078d4); opacity: 0.45; }
+.session-dot.done    { background: var(--df-signal); }
+.session-dot.current { background: var(--df-signal); opacity: 0.45; }
 
 /* ── Buttons ────────────────────────────── */
 #controls, #skip-wrap {
@@ -620,7 +623,7 @@ button {
 .rhythm-bar {
   width: 12px;
   border-radius: 2px 2px 1px 1px;
-  background: var(--vscode-focusBorder, #0078d4);
+  background: var(--df-signal);
   opacity: 0.5;
   transition: height 0.3s ease;
 }

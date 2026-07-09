@@ -106,7 +106,7 @@ The palette is two channels (full spec in [UI_SPEC.md](UI_SPEC.md) §4):
 
 | Channel | Token | Meaning |
 |---|---|---|
-| **Signal** | `--vscode-focusBorder` (the theme's own accent) | focus is live: focus arc, done segments, rhythm bars |
+| **Signal** | `--vscode-progressBar-background` (the theme's own progress color) | focus is live: focus arc, done segments, rhythm bars |
 | Ink ramp | `foreground` / `descriptionForeground` / `widget-border` | everything else; recovery states are ink at reduced intensity (break 0.55, long break 0.35, paused 0.5) |
 
 State is encoded in **fill vs outline and intensity, not hue**. DevFocus has no
