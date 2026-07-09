@@ -36,6 +36,7 @@
   const settingsBtn    = document.getElementById('settings-btn');
   const soundBtn       = document.getElementById('sound-btn');
   const taskInput      = document.getElementById('task-input');
+  const intentDone     = document.getElementById('intent-done');
   const btnStart       = document.getElementById('btn-start');
   const btnStartLabel  = document.getElementById('btn-start-label');
   const btnPause       = document.getElementById('btn-pause');
@@ -266,6 +267,15 @@
     // Intent input — sync value only if it differs (avoid clobbering mid-type)
     if (taskInput.value !== taskLabel) {
       taskInput.value = taskLabel;
+    }
+
+    // Mid-session completion: the active task is checkable right on the intent line
+    const showIntentDone = screen === 'focus' && !!activeTaskId;
+    intentDone.style.display = showIntentDone ? '' : 'none';
+    if (showIntentDone) {
+      const doneTitle = `Mark "${taskLabel}" done`;
+      intentDone.title = doneTitle;
+      intentDone.setAttribute('aria-label', doneTitle);
     }
   }
 
@@ -523,6 +533,11 @@
     }
   });
   laterClear.addEventListener('click', () => vscode.postMessage({ type: 'clearOldLater' }));
+  intentDone.addEventListener('click', () => {
+    if (lastSnapshot && lastSnapshot.activeTaskId) {
+      vscode.postMessage({ type: 'toggleTaskDone', id: lastSnapshot.activeTaskId });
+    }
+  });
   dsTriage.addEventListener('click', () => vscode.postMessage({ type: 'triageOpenTasks' }));
 
   // Intent input — debounced to avoid firing on every keystroke

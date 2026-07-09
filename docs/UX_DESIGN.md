@@ -188,9 +188,14 @@ to secondary emphasis. One more session is allowed — quietly.
 
 ### 8.3 Panel — Focus (Flow)
 
-Minimal by law: intent (borderless, centered, editable) · arc (time + FOCUS label)
-· dots · Pause + Reset · `🤖 Waiting on AI` chip. No mode selector, no today line,
-no rhythm strip. Nothing on this screen invites interaction except leaving it.
+Minimal by law: intent (borderless, centered, editable, with a **check-circle to
+mark the active task done mid-session** — the next open task slides in as the new
+intent without touching the timer) · arc (time + FOCUS label) · segments · Pause +
+Reset · `Waiting on AI` chip. No mode selector, no today line, no rhythm strip.
+Nothing on this screen invites interaction except leaving it — or finishing.
+
+**Paused is the re-planning moment**: the full plan block appears while paused, so
+switching tasks mid-round never requires ending the session.
 
 ### 8.4 Panel — Break / Micro-break (Recover)
 
@@ -228,8 +233,9 @@ morning notes-app ritual and nothing more.
 - **Midnight**: done tasks fold into history as counts (`tasksPlanned`/`tasksDone`)
   and their text is gone — git is the archive of finished work. Unfinished tasks
   move to Later; session tallies don't cross days.
-- **The plan lives on the idle screen only.** During focus you see only the active
-  task; during breaks, nothing. No projects, priorities, dates, or sync — ever.
+- **The plan lives on the idle and paused screens.** While running you see only
+  the active task (completable in place); during breaks, nothing. No projects,
+  priorities, dates, or sync — ever.
 
 ### 8.5 Setup (Arrive)
 

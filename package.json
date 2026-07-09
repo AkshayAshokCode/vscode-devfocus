@@ -80,6 +80,11 @@
         "command": "devfocus.captureTask",
         "title": "DevFocus: Add to Later (Capture)",
         "icon": "$(inbox)"
+      },
+      {
+        "command": "devfocus.completeTask",
+        "title": "DevFocus: Complete Active Task",
+        "icon": "$(pass)"
       }
     ],
     "keybindings": [

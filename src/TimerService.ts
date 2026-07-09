@@ -508,6 +508,12 @@ export class TimerService {
     this.commitPlanChange();
   }
 
+  completeActiveTask(): void {
+    if (this.activeTaskId) {
+      this.toggleTaskDone(this.activeTaskId);
+    }
+  }
+
   toggleTaskDone(id: string): void {
     const task = this.planTasks.find(t => t.id === id);
     if (!task) return;

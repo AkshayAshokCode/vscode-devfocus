@@ -38,6 +38,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('devfocus.reset',  () => timerService.reset()),
     vscode.commands.registerCommand('devfocus.skipBreak', () => timerService.skipBreak()),
     vscode.commands.registerCommand('devfocus.microBreak', () => timerService.microBreak()),
+    vscode.commands.registerCommand('devfocus.completeTask', () => timerService.completeActiveTask()),
     vscode.commands.registerCommand('devfocus.captureTask', async () => {
       const label = await vscode.window.showInputBox({
         prompt: 'Add to Later — a thought for another time',

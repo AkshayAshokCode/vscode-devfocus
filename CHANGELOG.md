@@ -2,6 +2,10 @@
 
 ## [1.2.2] - 2026-07-08
 
+### Added
+- Mark the active task done without stopping the timer — a check-circle sits next to the intent on the focus screen (also `DevFocus: Complete Active Task` in the Command Palette); the next open task becomes the intent and the session keeps running
+- Pausing now reveals the day plan, so switching tasks mid-round never requires ending the session
+
 ### Changed
 - Removed the blinking timer colon — the ticking seconds already signal "running", and a 1 Hz blink fights the panel's ambient design (it also made every screenshot look broken)
 
