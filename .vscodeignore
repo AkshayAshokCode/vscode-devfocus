@@ -4,6 +4,7 @@
 src/**
 !src/webview/**
 docs/**
+screenshot/**
 esbuild.js
 tsconfig.json
 **/*.map

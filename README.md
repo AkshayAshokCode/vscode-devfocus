@@ -4,32 +4,81 @@
 [![Open VSX Version](https://img.shields.io/open-vsx/v/akshayashokcode/devfocus?label=Open%20VSX&logo=eclipseide)](https://open-vsx.org/extension/akshayashokcode/devfocus)
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/akshayashokcode/devfocus?label=Cursor%20Downloads)](https://open-vsx.org/extension/akshayashokcode/devfocus)
 
-A Pomodoro timer built for developers, living right inside VSCode and Cursor.
+**A focus timer and day plan for engineers working with AI.** Sessions, real
+breaks, and a defensible end to the day — for the prompt → wait → review loop,
+not the old 9-to-5.
+
+| Today's plan | Focus | Waiting on AI |
+|---|---|---|
+| ![Today's plan, with reorder and rename controls](screenshot/plan-hover-later-expanded.png) | ![Focus screen](screenshot/focus.png) | ![Micro-break screen](screenshot/micro-break.png) |
+
+## Contents
+
+- [Why](#why)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Modes](#modes)
+- [Settings](#settings)
+- [Working with AI Agents](#working-with-ai-agents)
+- [Design Principles](#design-principles)
+- [Cursor IDE](#cursor-ide)
+- [License](#license)
+
+## Why
+
+AI coding agents changed the shape of the work: it's no longer 25 minutes of
+typing, it's prompt, wait, review, repeat. The old risk was losing focus. The
+new one is never disengaging — agents remove the natural stopping points, so
+nothing tells you when to rest or when the day is done. DevFocus is the pacing
+layer for that loop: it protects your focus during work, turns agent-wait time
+into real recovery, and gives your day a defensible end.
+
+## Screenshots
+
+| First run — pick your rhythm | A clean start |
+|---|---|
+| ![Setup screen](screenshot/setup.png) | ![Fresh idle screen](screenshot/idle-fresh.png) |
+
+| Break time | Wind-down — a good stopping point |
+|---|---|
+| ![Break screen](screenshot/break.png) | ![Wind-down day summary](screenshot/idle-wind-down-custom.png) |
 
 ## Features
 
+### Focus, your way
+
 - **Three modes** — Classic (25/5 min), Deep Work (50/10 min), and fully Custom
-- **Circular progress arc** — smooth visual countdown with phase-colour transitions
-- **Task label** — name what you're working on; shown in the status bar tooltip
-- **Sound toggle** — mute/unmute with one click directly in the panel
-- **Pause indicator** — dimmed arc and "Paused" badge make state unambiguous
-- **Session dots** — at-a-glance round progress with colour-coded states
-- **Status bar** — live time and phase always visible without opening the sidebar
-- **Milestone notifications** — celebration at every 5 completed sessions today
-- **Day plan** — write 3–5 tasks for today; the active one becomes your intent in the status bar, sessions count against it automatically, and you can reorder or rename tasks whenever priorities shift
-- **Later tray** — capture stray thoughts with `Alt+Shift+A` without leaving your code; promote them to today when their time comes
-- **"Waiting on AI" micro-breaks** — one keystroke starts a short rest while your agent works; the session freezes and resumes where it was
-- **Daily goal & wind-down** — set a session goal and a wind-down hour; after it, DevFocus nudges you to wrap up with a day summary
-- **Weekly rhythm** — a 7-day strip of your focus history with the week's focus total, kept locally for 30 days
-- **Persistent state** — timer survives VSCode restarts, restored as paused
-- **Auto-start** — optionally starts the next work session automatically after a break
-- **Keyboard shortcuts** — start/pause, reset, and skip break without touching the mouse
+- **Circular dial** — a live countdown with session segments showing round progress
+- **Status bar** — time, phase, and your current intent, always visible without opening the sidebar
+- **Sound & notifications** — toggle either independently; calm, single-line copy
+- **Persistent state** — survives restarts, restored as paused, never silently loses time
+
+### Today's plan
+
+- **Day plan** — write 3–5 tasks for today; the active one becomes your intent in the status bar and sessions count against it automatically
+- **Reorder & rename in place** — priorities change; drag isn't required, hover reveals the controls
+- **Complete mid-session** — check off the active task without stopping the timer; the next open one steps in
+- **Later tray** — capture stray thoughts with `Alt+Shift+A` from anywhere, without leaving your code; promote them to today when their time comes
+
+### Real breaks, not just timers
+
+- **Daily goal & wind-down** — set a session target and an evening hour; after it, DevFocus nudges you to wrap up with a day summary instead of another session
+- **Weekly rhythm** — a 7-day strip of your focus history and the week's total, kept locally for 30 days — a fact, not a streak to maintain
+- **Skip-break friction** — skipping is always allowed, but the cost is visible, not hidden
+- **Break suggestions** — a rotating, screen-appropriate nudge instead of a bare countdown
+
+### Built for AI-assisted coding
+
+- **"Waiting on AI" micro-breaks** — one keystroke starts an open-ended rest while your agent works; it counts up (no duration to guess), auto-resumes at a cap, and the session picks up exactly where it froze
+- **Agent hooks** — a URI scheme lets external tools (Claude Code, scripts) suggest a break when an agent starts and end it when the agent's done
 
 ## Getting Started
 
-1. Install DevFocus from the VSCode Marketplace
+1. Install DevFocus from the VS Code Marketplace or Open VSX
 2. Click the DevFocus icon in the Activity Bar to open the panel
-3. Select a mode, type what you're working on, and press **Start**
+3. Pick a rhythm, write down what you're working on, and press **Start**
 
 ## Keyboard Shortcuts
 
@@ -63,7 +112,7 @@ Reset has no default shortcut (it's destructive and rare) — run `DevFocus: Res
 | `devfocus.windDownTime` | `"18:00"` | After this hour DevFocus nudges you to wrap up (empty disables) |
 | `devfocus.microBreakMinutes` | `3` | Auto-resume cap for the open-ended micro-break |
 
-## Working with AI agents
+## Working with AI Agents
 
 AI-assisted coding is a loop: prompt → wait → review. DevFocus turns the wait into recovery.
 
@@ -94,9 +143,23 @@ For example, [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/
 
 Use `xdg-open` on Linux or `start ""` on Windows instead of `open`. In Cursor, replace the `vscode://` scheme with `cursor://`.
 
+## Design Principles
+
+DevFocus is deliberately quiet: no accounts, no telemetry, no gamification.
+Streaks were built and removed — loss-aversion mechanics punish rest, which
+contradicts the point of the tool. Consistency shows up as facts (a rhythm
+strip, a weekly total), never as a chain to maintain. Everything stays local.
+
+The full reasoning — strategy, interaction rules, and pixel-level spec — is
+written down, not just implemented:
+
+- [`docs/UX_PLAN.md`](docs/UX_PLAN.md) — strategy and roadmap
+- [`docs/UX_DESIGN.md`](docs/UX_DESIGN.md) — behavior, vocabulary, copy
+- [`docs/UI_SPEC.md`](docs/UI_SPEC.md) — tokens, layout, motion
+
 ## Cursor IDE
 
-DevFocus is fully compatible with [Cursor](https://cursor.sh). It uses only standard VSCode extension APIs.
+DevFocus is fully compatible with [Cursor](https://cursor.sh). It uses only standard VS Code extension APIs.
 
 ## License
 
