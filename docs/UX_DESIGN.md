@@ -222,9 +222,20 @@ morning notes-app ritual and nothing more.
   succeed). Items are strings with an age; older than 7 days renders dimmed with a
   "clear old" affordance. Nothing auto-deletes. Collapsed by default, hidden when
   empty.
-- **Movement**: click-to-promote (↑) and click-to-demote (↓), keyboard-reachable;
+- **Movement between lists**: click-to-promote and click-to-demote, keyboard-reachable;
   demotion is triage, not failure — no confirmation, no red. A same-day round trip
   keeps the session tally.
+- **Reordering within Today**: priority isn't fixed at write-time — a hover-revealed
+  chevron pair moves a task up/down among the still-open tasks (done tasks always
+  sink to the bottom regardless of storage order, so they're excluded from the
+  ordering). Disabled at the top/bottom edge, same convention as a full Later tray.
+- **Renaming**: a hover-revealed pencil turns the label into an input, in place —
+  no dialog. Enter or clicking away saves; Escape reverts. Works on both Today and
+  Later items. Typing is entirely local until commit, so it survives the once-a-second
+  snapshot tick untouched (the plan only re-renders when the underlying data changes).
+- **Icon language**: chevrons (↑/↓) move a task *within* its own list — priority
+  order. Arrows (←/→) move a task *between* lists — Today ⇄ Later. The two never
+  share a direction, so a hovered row never reads ambiguously.
 - **Capture from anywhere**: `DevFocus: Add to Later` (`alt+shift+a`) opens the
   native input box — the intruding thought lands in Later without touching the
   panel or the focus screen.

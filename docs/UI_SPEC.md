@@ -167,9 +167,26 @@ in Label style ("WIND-DOWN"), not an emoji.
 - Header: Label "TODAY'S PLAN" left, running score `2/4` right (tabular).
 - Row: 22px min height, Meta+ text (11.5px), radius 2, `list-hoverBackground` on
   hover. Active row: 2px inset signal bar (left edge, `box-shadow`, no layout shift).
-- Row anatomy: check (circle-large-outline → pass-filled) · label (ellipsized,
-  click = make active) · `S2` tally (Micro, tabular) · hover-revealed ↓/↑/× action
-  icons (opacity 0 → 0.6 on row hover/focus-within → 1 on self-hover).
+- Row anatomy (Today, open): check (circle-large-outline → pass-filled) · label
+  (ellipsized, click = make active) · `S2` tally (Micro, tabular) · hover-revealed
+  action cluster, left to right: **chevron-up** (move up) · **chevron-down** (move
+  down) · **edit** (rename) · **arrow-right** (move to Later). Chevrons disable
+  (opacity 0, same as the full-Later-tray convention) at the top/bottom edge of the
+  open-task list. Icons fade in 0 → 0.6 on row hover/focus-within → 1 on self-hover.
+- Row anatomy (Today, done): check only + edit (rename stays available; reorder and
+  move-to-Later don't apply to a finished task).
+- Row anatomy (Later): **arrow-left** (move to Today, disabled+explained when Today
+  is full) · label · hover-revealed **edit** · **close** (delete).
+- **Icon language**: chevrons = move within a list (priority); arrows = move between
+  lists (Today ⇄ Later). Never the same glyph for both, so hover never reads
+  ambiguously.
+- **Inline rename**: the pencil swaps the label for a `.task-edit-input` in place —
+  solid `focusBorder` border (it's already focused the instant it appears, so the
+  border doubles as the focus signal), same row height, `flex:1`. Auto-focused +
+  selected on mount. Enter or blur commits (empty commits are ignored — editing
+  never blanks a task); Escape reverts. Every other row's icons and the sess badge
+  are hidden on the row being edited, so the input is the row's only content besides
+  the check.
 - Done rows: strikethrough, 0.55 opacity, sorted below open rows.
 - Add input: dashed 1px border, transparent bg; solid + `input-background` on focus.
   Hidden at 5 tasks.

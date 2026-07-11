@@ -85,11 +85,15 @@ defensible end.
 - **Today list** (max 5): the intent line grown into a list; active task = intent,
   feeds status bar and focus screen; sessions attribute per task; done tasks stay
   struck-through all day, become counts in history at midnight.
-- **Later tray** (cap 10 manual adds): capture, promote (↑), demote (↓), stale
+- **Later tray** (cap 10 manual adds): capture, promote/demote between lists, stale
   fade after 7 days with "clear old"; unfinished Today tasks roll into it nightly.
 - **Capture command**: `DevFocus: Add to Later` (`alt+shift+a`) via the native
   input box — zero panel real estate, works mid-focus.
 - **Wind-down triage**: one-click "Move N open tasks to Later" in the day summary.
+- **Reorder + rename** (added post-launch): chevrons reorder within Today
+  (priority isn't fixed at write-time); a pencil renames any task in place.
+  Icon language split cleanly — chevrons move *within* a list, arrows move
+  *between* lists — so the two never collide visually.
 - Full behavior spec in [UX_DESIGN.md](UX_DESIGN.md) §8.4b; visuals in
   [UI_SPEC.md](UI_SPEC.md) §5.7. Drag-and-drop deferred (click-first per spec).
 

@@ -42,6 +42,8 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
         case 'toggleSound':  this.timerService.toggleSound(); break;
         case 'setTask':      this.timerService.setTask(msg.label); break;
         case 'addTask':      this.timerService.addTask(msg.label); break;
+        case 'editTask':     this.timerService.editTask(msg.id, msg.label); break;
+        case 'reorderTask':  this.timerService.reorderTask(msg.id, msg.direction); break;
         case 'toggleTaskDone': this.timerService.toggleTaskDone(msg.id); break;
         case 'setActiveTask':  this.timerService.setActiveTask(msg.id); break;
         case 'demoteTask':     this.timerService.demoteTask(msg.id); break;

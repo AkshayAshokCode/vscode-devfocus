@@ -514,6 +514,35 @@ export class TimerService {
     }
   }
 
+  /** Renames a task, whether it's in Today or Later — ids are unique across both. */
+  editTask(id: string, label: string): void {
+    const trimmed = label.trim().slice(0, 60);
+    if (!trimmed) return; // never blank a task via edit — deleting is a separate, explicit action
+    const task = this.planTasks.find(t => t.id === id) ?? this.laterTasks.find(t => t.id === id);
+    if (!task) return;
+    task.label = trimmed;
+    if (id === this.activeTaskId) {
+      this.taskLabel = trimmed; // keep the live intent (status bar, focus screen) in sync
+    }
+    this.commitPlanChange();
+  }
+
+  /** Reorders within Today's open tasks only — done tasks always sink to the bottom regardless. */
+  reorderTask(id: string, direction: 'up' | 'down'): void {
+    const openIndices = this.planTasks
+      .map((t, i) => ({ done: t.done, i }))
+      .filter(x => !x.done)
+      .map(x => x.i);
+    const pos = openIndices.findIndex(i => this.planTasks[i].id === id);
+    if (pos === -1) return;
+    const swapWith = direction === 'up' ? pos - 1 : pos + 1;
+    if (swapWith < 0 || swapWith >= openIndices.length) return;
+    const a = openIndices[pos];
+    const b = openIndices[swapWith];
+    [this.planTasks[a], this.planTasks[b]] = [this.planTasks[b], this.planTasks[a]];
+    this.commitPlanChange();
+  }
+
   toggleTaskDone(id: string): void {
     const task = this.planTasks.find(t => t.id === id);
     if (!task) return;

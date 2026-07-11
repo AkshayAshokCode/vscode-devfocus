@@ -376,10 +376,14 @@
   }
 
 // ── Day plan (Today + Later) ──────────────────────────────────
+  // Icon language: chevrons move a task within its own list (priority order);
+  // arrows move a task between lists (Today ⇄ Later). The two never overlap,
+  // so a hovered row never reads ambiguously.
   const PLAN_MAX = 5;
   const STALE_DAYS = 7;
   let planKey = '';
   let laterExpanded = false;
+  let editingId = null; // id of the task currently being renamed, if any
 
   function staleCutoffIso() {
     const d = new Date();
@@ -387,20 +391,85 @@
     return d.toISOString().split('T')[0];
   }
 
-  function iconBtn(className, title, onClick) {
+  function iconBtn(className, title, onClick, disabled) {
     const btn = document.createElement('button');
     btn.className = 'task-act';
     btn.title = title;
     btn.setAttribute('aria-label', title);
+    if (disabled) btn.disabled = true;
     const icon = document.createElement('i');
     icon.className = `codicon ${className}`;
     btn.appendChild(icon);
-    btn.addEventListener('click', onClick);
+    if (!disabled) btn.addEventListener('click', onClick);
     return btn;
   }
 
+  function applyOptimisticLabel(id, label) {
+    // Update our own cached snapshot immediately so exiting edit mode shows
+    // the new text right away, instead of the old text for one tick until
+    // the extension's confirmation round-trips back.
+    if (!lastSnapshot) return;
+    const t = (lastSnapshot.planTasks || []).find(x => x.id === id)
+      || (lastSnapshot.laterTasks || []).find(x => x.id === id);
+    if (t) t.label = label;
+  }
+
+  function rerenderPlanNow() {
+    planKey = ''; // bypass the memo guard — something not reflected in the data itself changed
+    if (lastSnapshot) {
+      renderPlan(lastSnapshot.planTasks || [], lastSnapshot.activeTaskId || null, lastSnapshot.laterTasks || []);
+    }
+  }
+
+  function startEditing(id) {
+    editingId = id;
+    rerenderPlanNow();
+  }
+
+  // Renaming happens inline, in place of the label. Enter or clicking away
+  // saves; Escape reverts. Only one row can be in edit mode at a time.
+  function buildLabelCell(task, clickable) {
+    if (task.id === editingId) {
+      const input = document.createElement('input');
+      input.className = 'task-edit-input';
+      input.maxLength = 60;
+      input.value = task.label;
+      input.setAttribute('aria-label', 'Rename task');
+
+      let settled = false;
+      const finish = commit => {
+        if (settled) return; // Escape already resolved this edit before blur could fire
+        settled = true;
+        const value = input.value.trim();
+        if (commit && value && value !== task.label) {
+          applyOptimisticLabel(task.id, value);
+          vscode.postMessage({ type: 'editTask', id: task.id, label: value });
+        }
+        editingId = null;
+        rerenderPlanNow();
+      };
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+        else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+      });
+      input.addEventListener('blur', () => finish(true));
+      requestAnimationFrame(() => { input.focus(); input.select(); });
+      return input;
+    }
+
+    const label = document.createElement(clickable ? 'button' : 'span');
+    label.className = 'task-label';
+    label.textContent = task.label;
+    if (clickable) {
+      label.title = 'Make this the active task';
+      label.addEventListener('click', () => vscode.postMessage({ type: 'setActiveTask', id: task.id }));
+    }
+    return label;
+  }
+
   function renderPlan(plan, activeId, later) {
-    const key = JSON.stringify([plan, activeId, later, laterExpanded]);
+    const key = JSON.stringify([plan, activeId, later, laterExpanded, editingId]);
     if (key === planKey) return;
     planKey = key;
 
@@ -408,12 +477,17 @@
     const doneCount = plan.filter(t => t.done).length;
     planCount.textContent = plan.length > 0 ? `${doneCount}/${plan.length}` : '';
 
-    // Today rows — open tasks first, wins sink struck-through to the bottom
+    // Today rows — open tasks first (reorderable, priority order), done tasks
+    // sink struck-through below in whatever order they finished
     planList.innerHTML = '';
-    const sorted = [...plan.filter(t => !t.done), ...plan.filter(t => t.done)];
-    for (const t of sorted) {
+    const openTasks = plan.filter(t => !t.done);
+    const doneTasks = plan.filter(t => t.done);
+    let openPos = -1;
+
+    for (const t of [...openTasks, ...doneTasks]) {
       const row = document.createElement('li');
       row.className = 'task-row' + (t.done ? ' done' : '') + (t.id === activeId ? ' active' : '');
+      const editing = t.id === editingId;
 
       const check = document.createElement('button');
       check.className = 'task-check';
@@ -425,16 +499,9 @@
       check.addEventListener('click', () => vscode.postMessage({ type: 'toggleTaskDone', id: t.id }));
       row.appendChild(check);
 
-      const label = document.createElement('button');
-      label.className = 'task-label';
-      label.textContent = t.label;
-      if (!t.done) {
-        label.title = 'Make this the active task';
-        label.addEventListener('click', () => vscode.postMessage({ type: 'setActiveTask', id: t.id }));
-      }
-      row.appendChild(label);
+      row.appendChild(buildLabelCell(t, !t.done));
 
-      if (t.sessions > 0) {
+      if (t.sessions > 0 && !editing) {
         const sess = document.createElement('span');
         sess.className = 'task-sess';
         sess.textContent = `S${t.sessions}`;
@@ -442,9 +509,21 @@
         row.appendChild(sess);
       }
 
-      if (!t.done) {
-        row.appendChild(iconBtn('codicon-arrow-down', 'Move to Later',
-          () => vscode.postMessage({ type: 'demoteTask', id: t.id })));
+      if (!editing) {
+        if (!t.done) {
+          openPos++;
+          const isFirst = openPos === 0;
+          const isLast = openPos === openTasks.length - 1;
+          row.appendChild(iconBtn('codicon-chevron-up', isFirst ? 'Already at the top' : 'Move up',
+            () => vscode.postMessage({ type: 'reorderTask', id: t.id, direction: 'up' }), isFirst));
+          row.appendChild(iconBtn('codicon-chevron-down', isLast ? 'Already at the bottom' : 'Move down',
+            () => vscode.postMessage({ type: 'reorderTask', id: t.id, direction: 'down' }), isLast));
+        }
+        row.appendChild(iconBtn('codicon-edit', 'Rename', () => startEditing(t.id)));
+        if (!t.done) {
+          row.appendChild(iconBtn('codicon-arrow-right', 'Move to Later',
+            () => vscode.postMessage({ type: 'demoteTask', id: t.id })));
+        }
       }
 
       planList.appendChild(row);
@@ -470,19 +549,18 @@
       for (const t of later) {
         const row = document.createElement('li');
         row.className = 'task-row' + (t.addedDate < cutoff ? ' stale' : '');
+        const editing = t.id === editingId;
 
-        const up = iconBtn('codicon-arrow-up', planFull ? "Today's plan is full" : 'Add to today',
-          () => vscode.postMessage({ type: 'promoteTask', id: t.id }));
-        up.disabled = planFull;
-        row.appendChild(up);
+        row.appendChild(iconBtn('codicon-arrow-left', planFull ? "Today's plan is full" : 'Add to today',
+          () => vscode.postMessage({ type: 'promoteTask', id: t.id }), planFull));
 
-        const label = document.createElement('span');
-        label.className = 'task-label';
-        label.textContent = t.label;
-        row.appendChild(label);
+        row.appendChild(buildLabelCell(t, false));
 
-        row.appendChild(iconBtn('codicon-close', 'Delete',
-          () => vscode.postMessage({ type: 'deleteLaterTask', id: t.id })));
+        if (!editing) {
+          row.appendChild(iconBtn('codicon-edit', 'Rename', () => startEditing(t.id)));
+          row.appendChild(iconBtn('codicon-close', 'Delete',
+            () => vscode.postMessage({ type: 'deleteLaterTask', id: t.id })));
+        }
 
         laterList.appendChild(row);
       }
@@ -524,10 +602,7 @@
   });
   laterToggle.addEventListener('click', () => {
     laterExpanded = !laterExpanded;
-    planKey = ''; // force re-render
-    if (lastSnapshot) {
-      renderPlan(lastSnapshot.planTasks || [], lastSnapshot.activeTaskId || null, lastSnapshot.laterTasks || []);
-    }
+    rerenderPlanNow();
   });
   laterClear.addEventListener('click', () => vscode.postMessage({ type: 'clearOldLater' }));
   intentDone.addEventListener('click', () => {

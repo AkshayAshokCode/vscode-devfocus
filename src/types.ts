@@ -104,6 +104,8 @@ export type WebToExtMsg =
   | { type: 'toggleSound' }
   | { type: 'setTask'; label: string }
   | { type: 'addTask'; label: string }
+  | { type: 'editTask'; id: string; label: string }
+  | { type: 'reorderTask'; id: string; direction: 'up' | 'down' }
   | { type: 'toggleTaskDone'; id: string }
   | { type: 'setActiveTask'; id: string }
   | { type: 'demoteTask'; id: string }

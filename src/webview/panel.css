@@ -296,6 +296,21 @@ body.sound-off #sound-btn:hover { opacity: 0.8; }
 }
 .task-row.stale { opacity: 0.5; }
 
+/* Inline rename — replaces the label in place; already-focused, so the
+   border doubles as the focus signal instead of a quiet/active state pair */
+.task-edit-input {
+  flex: 1;
+  min-width: 0;
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-focusBorder);
+  border-radius: 2px;
+  padding: 1px 5px;
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+}
+
 .task-sess {
   font-size: 9.5px;
   color: var(--vscode-descriptionForeground);

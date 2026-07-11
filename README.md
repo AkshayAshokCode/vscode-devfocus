@@ -16,7 +16,7 @@ A Pomodoro timer built for developers, living right inside VSCode and Cursor.
 - **Session dots** — at-a-glance round progress with colour-coded states
 - **Status bar** — live time and phase always visible without opening the sidebar
 - **Milestone notifications** — celebration at every 5 completed sessions today
-- **Day plan** — write 3–5 tasks for today; the active one becomes your intent in the status bar, and sessions count against it automatically
+- **Day plan** — write 3–5 tasks for today; the active one becomes your intent in the status bar, sessions count against it automatically, and you can reorder or rename tasks whenever priorities shift
 - **Later tray** — capture stray thoughts with `Alt+Shift+A` without leaving your code; promote them to today when their time comes
 - **"Waiting on AI" micro-breaks** — one keystroke starts a short rest while your agent works; the session freezes and resumes where it was
 - **Daily goal & wind-down** — set a session goal and a wind-down hour; after it, DevFocus nudges you to wrap up with a day summary
