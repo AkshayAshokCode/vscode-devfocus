@@ -15,6 +15,7 @@ not the old 9-to-5.
 ## Contents
 
 - [Why](#why)
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
@@ -33,6 +34,16 @@ new one is never disengaging — agents remove the natural stopping points, so
 nothing tells you when to rest or when the day is done. DevFocus is the pacing
 layer for that loop: it protects your focus during work, turns agent-wait time
 into real recovery, and gives your day a defensible end.
+
+## Screenshots
+
+| First run — pick your rhythm | A clean start |
+|---|---|
+| ![Setup screen](screenshot/setup.png) | ![Fresh idle screen](screenshot/idle-fresh.png) |
+
+| Break time | Wind-down — a good stopping point |
+|---|---|
+| ![Break screen](screenshot/break.png) | ![Wind-down day summary](screenshot/idle-wind-down-custom.png) |
 
 ## Features
 
