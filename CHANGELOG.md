@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.2.2] - 2026-07-08
+## [1.3.0] - 2026-07-11
 
 ### Changed
 - README screenshots — real captures added at `screenshot/` (Today's plan, Focus, Waiting on AI); excluded from the packaged `.vsix` via `.vscodeignore` since the Marketplace resolves relative image links through the `repository` field instead
