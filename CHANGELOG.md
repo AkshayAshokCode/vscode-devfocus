@@ -2,6 +2,10 @@
 
 ## [1.2.2] - 2026-07-08
 
+### Changed
+- README screenshots — real captures added at `screenshot/` (Today's plan, Focus, Waiting on AI); excluded from the packaged `.vsix` via `.vscodeignore` since the Marketplace resolves relative image links through the `repository` field instead
+- README restructured — tagline aligned with the marketplace description ("focus timer and day plan for engineers working with AI"), features regrouped by theme instead of one flat list, added a table of contents and a Design Principles section linking to the `docs/` specs
+
 ### Fixed
 - Sound cues never played unless the DevFocus panel had been opened at least once — playback lived entirely in the webview (extensions can't play audio directly), so `postPlaySound` silently no-op'd for anyone running status-bar-first, which is the product's primary intended workflow. Sound now plays from the extension host via the OS's native player (`afplay`/PowerShell `SoundPlayer`/`paplay`), independent of whether the panel has ever been opened
 
@@ -15,6 +19,9 @@
 - Removed the blinking timer colon — the ticking seconds already signal "running", and a 1 Hz blink fights the panel's ambient design (it also made every screenshot look broken)
 
 ### Fixed
+- Micro-break arc rendered in the focus signal color instead of the intended dimmed recovery treatment — a micro-break's underlying phase is always WORK (it's an overlay, not a phase change), so `.phase-work` and `.screen-micro` were both on the body at once; with equal CSS specificity, file order decided the winner. Fixed by raising the micro-break rule's specificity so it wins regardless of source order.
+- Paused focus screen showed the active task twice — once properly in Today's Plan (with its session tag and active marker), once again as a bare, unstyled row from the standalone intent line, which was never hidden for this state. The intent line now hides whenever the plan is showing (idle, and paused-on-focus).
+- Wind-down showed the same "6/8 today · 2h 30m focused" fact twice — once in the info line, once in the day-summary card directly below it (which already includes it, plus breaks skipped). The info line now hides while the card is showing.
 - Focus arc, session segments, and rhythm bars were nearly invisible on Cursor's default themes — the signal color used `focusBorder`, which Cursor Dark defines at 15% alpha (and Cursor Dark Midnight as fully transparent); the signal now uses `progressBar.background`, which every theme must keep visible
 
 ## [1.2.1] - 2026-07-08

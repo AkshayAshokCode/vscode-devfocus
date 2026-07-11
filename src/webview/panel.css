@@ -45,6 +45,10 @@ body.screen-focus #info-bar,
 body.screen-break #info-bar,
 body.screen-micro #info-bar { display: none; }
 
+/* Wind-down's day-summary card is a superset of the info line (same facts,
+   plus breaks skipped) — showing both states "6/8 today" twice in a row */
+body.screen-idle.wind-down #info-bar { display: none; }
+
 body.screen-focus #top-bar,
 body.screen-break #top-bar,
 body.screen-micro #top-bar { justify-content: flex-end; }
@@ -63,7 +67,10 @@ body.screen-focus #micro-wrap { display: flex; justify-content: center; width: 1
 body.screen-micro #micro-end-wrap { display: flex; justify-content: center; width: 100%; }
 body.screen-micro #controls { display: none; }
 body.screen-micro #break-heading { display: block; }
-body.screen-micro #arc-progress { stroke: var(--vscode-foreground); opacity: 0.55; }
+/* Specificity, not just source order — a micro-break's underlying phase is
+   always WORK (it's an overlay, not a phase change), so .phase-work is present
+   at the same time as .screen-micro and would otherwise win on file order */
+body.screen-micro.phase-work #arc-progress { stroke: var(--vscode-foreground); opacity: 0.55; }
 
 /* Skip break only makes sense on the break screen */
 #skip-wrap { display: none; }
@@ -91,7 +98,8 @@ body.screen-idle #rhythm-wrap { display: flex; }
 #plan-wrap { display: none; }
 body.screen-idle #plan-wrap { display: flex; }
 body.screen-focus.state-paused #plan-wrap { display: flex; }
-body.screen-idle #task-wrap { display: none; }
+body.screen-idle #task-wrap,
+body.screen-focus.state-paused #task-wrap { display: none; }
 
 /* ── Setup screen ────────────────────────── */
 #setup-screen {
