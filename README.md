@@ -76,11 +76,11 @@ a defensible end to the day.
 
 ## Keyboard Shortcuts
 
-| Action | Shortcut |
-|---|---|
-| Start / Pause | `Alt+Shift+D` |
-| Skip Break | `Alt+Shift+B` |
-| Capture a task to Later | `Alt+Shift+A` |
+| Action | Windows / Linux | macOS |
+|---|---|---|
+| Start / Pause | `Alt+Shift+D` | `⌥⇧D` |
+| Skip Break | `Alt+Shift+B` | `⌥⇧B` |
+| Capture a task to Later | `Alt+Shift+A` | `⌥⇧A` |
 
 Reset has no default shortcut (it's destructive and rare) — run `DevFocus: Reset Timer` from the Command Palette, or bind your own key.
 
