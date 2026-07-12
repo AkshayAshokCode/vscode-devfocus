@@ -16,12 +16,6 @@ export class StatusBarController {
   update(snap: TimerSnapshot): void {
     const { state, phase, timeDisplay, currentSession, settings, dailyCount, taskLabel } = snap;
 
-    if (snap.microBreakActive) {
-      this.item.text = `$(circle-outline) ${timeDisplay} · Micro-break`;
-      this.item.tooltip = 'Micro-break — resting while the agent works\nClick to open DevFocus';
-      return;
-    }
-
     // Circle family: filled = focus, outline = recovery, large-outline = standing by
     const icon = phase === TimerPhase.WORK ? '$(circle-filled)' : '$(circle-outline)';
     const phaseLabel = phase === TimerPhase.WORK

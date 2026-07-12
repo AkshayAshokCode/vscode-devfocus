@@ -51,11 +51,6 @@ export class TimerService {
   private windDownTime: string;
   private taskLabel: string = '';
   private firstRun: boolean = false;
-  // Micro-break overlay: an open-ended rest that counts UP while the main timer is
-  // frozen. Agent waits end unpredictably, so no fixed length — the cap only exists
-  // so a forgotten break can't eat the session.
-  private microBreakElapsedMs: number | null = null;
-  private microBreakCapMs: number = 0;
   private tickCount: number = 0;
   private intervalHandle: ReturnType<typeof setInterval> | undefined;
 
@@ -198,16 +193,6 @@ export class TimerService {
       this.persistState();
     }
 
-    if (this.microBreakElapsedMs !== null) {
-      this.microBreakElapsedMs += 1000;
-      if (this.microBreakElapsedMs >= this.microBreakCapMs) {
-        this.endMicroBreak(true);
-      } else {
-        this.onSnapshot(this.buildSnapshot());
-      }
-      return;
-    }
-
     if (this.state !== TimerState.RUNNING) {
       this.onSnapshot(this.buildSnapshot());
       return;
@@ -326,16 +311,10 @@ export class TimerService {
   }
 
   private buildSnapshot(): TimerSnapshot {
-    // A micro-break counts UP (open-ended rest); its arc fills toward the auto-resume cap
-    const microActive = this.microBreakElapsedMs !== null;
-    const shownMs = microActive ? this.microBreakElapsedMs! : this.remainingMs;
-
-    const totalSec = microActive ? Math.floor(shownMs / 1000) : Math.ceil(shownMs / 1000);
+    const totalSec = Math.ceil(this.remainingMs / 1000);
     const minutes = Math.floor(totalSec / 60).toString().padStart(2, '0');
     const seconds = (totalSec % 60).toString().padStart(2, '0');
-    const progress = microActive
-      ? (this.microBreakCapMs > 0 ? shownMs / this.microBreakCapMs : 0)
-      : (this.totalMs > 0 ? 1 - this.remainingMs / this.totalMs : 0);
+    const progress = this.totalMs > 0 ? 1 - this.remainingMs / this.totalMs : 0;
 
     return {
       state: this.state,
@@ -350,7 +329,6 @@ export class TimerService {
       breaksSkippedToday: this.breaksSkippedToday,
       windDown: this.isWindDown(),
       history: this.history.slice(-7),
-      microBreakActive: microActive,
       planTasks: this.planTasks.map(t => ({ ...t })),
       activeTaskId: this.activeTaskId,
       laterTasks: this.laterTasks.map(t => ({ ...t })),
@@ -381,11 +359,6 @@ export class TimerService {
   }
 
   toggle(): void {
-    // During a micro-break, toggle means "I'm back" — resume whatever was frozen
-    if (this.microBreakElapsedMs !== null) {
-      this.endMicroBreak(false);
-      return;
-    }
     if (this.state === TimerState.RUNNING) {
       this.pause();
     } else {
@@ -393,44 +366,7 @@ export class TimerService {
     }
   }
 
-  microBreak(): void {
-    if (this.microBreakElapsedMs !== null) {
-      this.endMicroBreak(false);
-      return;
-    }
-    // Pointless during a real break
-    if (this.phase !== TimerPhase.WORK) return;
-    this.firstRun = false;
-    const capMins = vscode.workspace.getConfiguration('devfocus').get('microBreakMinutes', 3);
-    this.microBreakCapMs = capMins * 60 * 1000;
-    this.microBreakElapsedMs = 0;
-    this.onSnapshot(this.buildSnapshot());
-  }
-
-  endMicroBreakIfActive(): void {
-    if (this.microBreakElapsedMs !== null) {
-      this.endMicroBreak(false);
-    }
-  }
-
-  private endMicroBreak(cappedOut: boolean): void {
-    this.microBreakElapsedMs = null;
-    if (cappedOut) {
-      if (this.soundEnabled) { this.onPlaySound('break'); }
-      if (this.notificationsEnabled) {
-        this.onNotify(
-          this.state === TimerState.RUNNING
-            ? 'Micro-break over — resuming.'
-            : 'Micro-break over — ready when you are.',
-          '',
-        );
-      }
-    }
-    this.onSnapshot(this.buildSnapshot());
-  }
-
   reset(): void {
-    this.microBreakElapsedMs = null;
     this.state = TimerState.IDLE;
     this.phase = TimerPhase.WORK;
     this.currentSession = 1;

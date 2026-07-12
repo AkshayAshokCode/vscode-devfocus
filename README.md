@@ -8,9 +8,9 @@
 breaks, and a defensible end to the day — for the prompt → wait → review loop,
 not the old 9-to-5.
 
-| Today's plan | Focus | Waiting on AI |
+| Today's plan | Focus | Break |
 |---|---|---|
-| ![Today's plan, with reorder and rename controls](screenshot/plan-hover-later-expanded.png) | ![Focus screen](screenshot/focus.png) | ![Micro-break screen](screenshot/micro-break.png) |
+| ![Today's plan, with reorder and rename controls](screenshot/plan-hover-later-expanded.png) | ![Focus screen](screenshot/focus.png) | ![Break screen](screenshot/break.png) |
 
 ## Contents
 
@@ -21,7 +21,6 @@ not the old 9-to-5.
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Modes](#modes)
 - [Settings](#settings)
-- [Working with AI Agents](#working-with-ai-agents)
 - [Design Principles](#design-principles)
 - [Cursor IDE](#cursor-ide)
 - [License](#license)
@@ -32,8 +31,8 @@ AI coding agents changed the shape of the work: it's no longer 25 minutes of
 typing, it's prompt, wait, review, repeat. The old risk was losing focus. The
 new one is never disengaging — agents remove the natural stopping points, so
 nothing tells you when to rest or when the day is done. DevFocus is the pacing
-layer for that loop: it protects your focus during work, turns agent-wait time
-into real recovery, and gives your day a defensible end.
+layer for that loop: a plan for today, protected focus time, real breaks, and
+a defensible end to the day.
 
 ## Screenshots
 
@@ -69,11 +68,6 @@ into real recovery, and gives your day a defensible end.
 - **Skip-break friction** — skipping is always allowed, but the cost is visible, not hidden
 - **Break suggestions** — a rotating, screen-appropriate nudge instead of a bare countdown
 
-### Built for AI-assisted coding
-
-- **"Waiting on AI" micro-breaks** — one keystroke starts an open-ended rest while your agent works; it counts up (no duration to guess), auto-resumes at a cap, and the session picks up exactly where it froze
-- **Agent hooks** — a URI scheme lets external tools (Claude Code, scripts) suggest a break when an agent starts and end it when the agent's done
-
 ## Getting Started
 
 1. Install DevFocus from the VS Code Marketplace or Open VSX
@@ -86,7 +80,6 @@ into real recovery, and gives your day a defensible end.
 |---|---|
 | Start / Pause | `Alt+Shift+D` |
 | Skip Break | `Alt+Shift+B` |
-| Micro-break ("Waiting on AI") | `Alt+Shift+M` |
 | Capture a task to Later | `Alt+Shift+A` |
 
 Reset has no default shortcut (it's destructive and rare) — run `DevFocus: Reset Timer` from the Command Palette, or bind your own key.
@@ -110,38 +103,6 @@ Reset has no default shortcut (it's destructive and rare) — run `DevFocus: Res
 | `devfocus.longBreakMinutes` | `15` | Default long break length for Custom mode |
 | `devfocus.dailyGoal` | `8` | Daily session goal shown in panel and status bar (0 disables) |
 | `devfocus.windDownTime` | `"18:00"` | After this hour DevFocus nudges you to wrap up (empty disables) |
-| `devfocus.microBreakMinutes` | `3` | Auto-resume cap for the open-ended micro-break |
-
-## Working with AI Agents
-
-AI-assisted coding is a loop: prompt → wait → review. DevFocus turns the wait into recovery.
-
-**Micro-breaks** — while an agent works, press `Alt+Shift+M` (or click **Waiting on AI** in the panel). Your session freezes and an open-ended rest counts up — agent waits end unpredictably, so there's no duration to guess. Click **I'm back** when the agent's done (or let the `agent-done` hook do it), and everything resumes exactly where it was; a cap (default 3 min) auto-resumes forgotten breaks.
-
-**Agent hooks** — external tools can drive DevFocus through URIs:
-
-| URI | Effect |
-|---|---|
-| `vscode://akshayashokcode.devfocus/micro-break` | Toggle a micro-break |
-| `vscode://akshayashokcode.devfocus/agent-start` | Suggest a micro-break (notification with one-click action) |
-| `vscode://akshayashokcode.devfocus/agent-done` | End the micro-break if one is running |
-
-For example, [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) can nudge you to rest while Claude works and call you back when it finishes — add to `.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      { "hooks": [{ "type": "command", "command": "open 'vscode://akshayashokcode.devfocus/agent-start'" }] }
-    ],
-    "Stop": [
-      { "hooks": [{ "type": "command", "command": "open 'vscode://akshayashokcode.devfocus/agent-done'" }] }
-    ]
-  }
-}
-```
-
-Use `xdg-open` on Linux or `start ""` on Windows instead of `open`. In Cursor, replace the `vscode://` scheme with `cursor://`.
 
 ## Design Principles
 
