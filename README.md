@@ -51,7 +51,7 @@ a defensible end to the day.
 - **Three modes** — Classic (25/5 min), Deep Work (50/10 min), and fully Custom
 - **Circular dial** — a live countdown with session segments showing round progress
 - **Status bar** — time, phase, and your current intent, always visible without opening the sidebar
-- **Sound & notifications** — toggle either independently; calm, single-line copy
+- **Sound & notifications** — a cue and a desktop notification when a session ends, a break ends, and when a round completes; toggle either independently, calm single-line copy
 - **Persistent state** — survives restarts, restored as paused, never silently loses time
 
 ### Today's plan
@@ -96,9 +96,9 @@ Reset has no default shortcut (it's destructive and rare) — run `DevFocus: Res
 
 | Setting | Default | Description |
 |---|---|---|
-| `devfocus.soundEnabled` | `true` | Play audio on phase transitions |
+| `devfocus.soundEnabled` | `true` | Play a sound when a session ends, a break ends, or a round completes |
 | `devfocus.autoStartNextSession` | `true` | Auto-start work session after break |
-| `devfocus.notificationsEnabled` | `true` | Show desktop notifications |
+| `devfocus.notificationsEnabled` | `true` | Show a desktop notification when a session ends, a break ends, or a round completes |
 | `devfocus.defaultMode` | `"CLASSIC"` | Mode applied on first launch |
 | `devfocus.longBreakMinutes` | `15` | Default long break length for Custom mode |
 | `devfocus.dailyGoal` | `8` | Daily session goal shown in panel and status bar (0 disables) |
