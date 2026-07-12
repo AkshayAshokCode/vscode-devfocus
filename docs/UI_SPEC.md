@@ -88,7 +88,6 @@ State is intensity, not hue:
 | Focus running | signal, full intensity |
 | Break | ink stroke @ 0.55 — the dial "hollows out" |
 | Long break | ink stroke @ 0.35 — deeper rest, dimmer |
-| Micro-break | ink stroke @ 0.55 (same family as break) |
 | Paused | whatever is showing @ 0.5 |
 | Celebration | plain full-intensity ink; no gold, no fire |
 
@@ -134,7 +133,7 @@ focus-visible = 1px `focusBorder` outline, transitions 100ms ease-out.
 | Primary | `button-background` / `button-foreground`; padding 5×14 | Start, Resume, I'm back, Apply |
 | Secondary | `button-secondaryBackground`; padding 5×14 | Pause, Reset |
 | Text | transparent, ink-2 → ink on hover; padding 3×6 | skip break, customize timings |
-| Chip | rectangle, 1px `widget-border`, Meta text, padding 3×10 | mode chip `DEEP WORK ▾`, `WAITING ON AI` |
+| Chip | rectangle, 1px `widget-border`, Meta text, padding 3×10 | mode chip `DEEP WORK ▾` |
 | Icon | 22×22, transparent, 0.7 → 1 + `toolbar-hoverBackground` hover | mute, settings |
 
 ### 5.4 Inputs
@@ -208,7 +207,6 @@ Codicon circle family encodes state by fill — the dial motif in 16 px:
 | Paused | previous + `$(debug-pause)` |
 | Break | `$(circle-outline) 03:36 · Break` |
 | Long break | `$(circle-outline) 12:40 · Long break` |
-| Micro-break | `$(circle-outline) 02:12 · Micro-break` |
 
 Filled = focus. Outline = recovery. Large-outline = standing by. Never a
 background color; intent truncates at 24 chars.
@@ -229,7 +227,7 @@ IDLE                          FOCUS                       BREAK
 │    ▬ ▬ ▭ ▭           │      │      ╰─────╯         │    │    ▬ ▬ ▬ ▭           │
 │                      │      │    ▬ ▭ ▭ ▭           │    │                      │
 │   [ Start ]          │      │  [ Pause ] [ Reset ] │    │   [Resume] skip      │
-│                      │      │   WAITING ON AI      │    │   2 skipped today    │
+│                      │      │                      │    │   2 skipped today    │
 │   DEEP WORK ▾        │      │                      │    │                      │
 │   LAST 7 DAYS   4D   │      │                      │    │                      │
 │   ▂ ▅ ▃ ▁ ▆ ▂ ▇      │      │                      │    │                      │
@@ -265,7 +263,7 @@ No parallax, no springs, no confetti — ever (§UX 13).
   each theme's progress color rather than imposing one — and unlike `focusBorder`,
   themes are forced to keep it visible.
 - High contrast: every interactive element has a border or outline; verify the
-  focus ring on all five screens.
+  focus ring on all four screens.
 
 ## 9. Quality bar (definition of done for any UI change)
 

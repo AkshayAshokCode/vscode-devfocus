@@ -70,8 +70,8 @@ primary action. `screenFor()` in the webview is the runtime expression of this t
 | Arrive (first run) | Setup | "What is this?" | pick a rhythm | hidden |
 | Plan (morning) | Idle | "What matters today?" | write 3–5 tasks, pull from Later | mode chip beside it |
 | Commit | Idle | "What am I about to do?" | pick active task → Start | today line, rhythm strip |
-| Flow | Focus | "How much is left?" | (none — keep going) | Pause, micro-break, quiet |
-| Recover | Break / Micro | "What should I do *right now*?" | rest (do nothing) | skip (dissuaded), I'm back |
+| Flow | Focus | "How much is left?" | (none — keep going) | Pause, quiet |
+| Recover | Break | "What should I do *right now*?" | rest (do nothing) | skip (dissuaded) |
 | Wrap | Idle + wind-down | "Have I done enough?" | close the day | one more session (allowed, quiet) |
 | Reflect | Idle (morning) | "Am I sustainable?" | (none) | rhythm strip, weekly total |
 
@@ -88,7 +88,6 @@ terms. Never mix.
 | One counted block | **session** | pomodoro, sprint |
 | Short recovery | **break** | pause, rest (as noun) |
 | End-of-round recovery | **long break** | big break |
-| Agent-wait recovery | **micro-break** | mini break, AI break |
 | A set of sessions | **round** | cycle, set |
 | The task label | **intent** | task, label |
 | A planned item for today | **task** | todo, ticket, item |
@@ -137,8 +136,6 @@ optional single action button. Terse, precise, still humane.
 | Break over (manual) | `Session 3 is ready when you are.` [Start session] |
 | Goal reached | `Goal met — 8 sessions. Everything from here is bonus.` |
 | Milestone | `5 sessions today. Make the next break a real one.` |
-| Micro-break over | `Micro-break over — resuming.` |
-| Agent working | `Agent's working — rest your eyes?` [Micro-break] |
 
 ---
 
@@ -159,7 +156,6 @@ standing by:
 | Paused | previous + `$(debug-pause)` | "paused" |
 | Break | `$(circle-outline) 04:12 · Break` | suggestion |
 | Long break | `$(circle-outline) 12:40 · Long break` | — |
-| Micro-break | `$(circle-outline) 02:45 · Micro-break` | "resting while the agent works" |
 
 ### 8.2 Panel — Idle (Commit / Reflect / Wrap)
 
@@ -191,22 +187,17 @@ to secondary emphasis. One more session is allowed — quietly.
 Minimal by law: intent (borderless, centered, editable, with a **check-circle to
 mark the active task done mid-session** — the next open task slides in as the new
 intent without touching the timer) · arc (time + FOCUS label) · segments · Pause +
-Reset · `Waiting on AI` chip. No mode selector, no today line, no rhythm strip.
-Nothing on this screen invites interaction except leaving it — or finishing.
+Reset. No mode selector, no today line, no rhythm strip. Nothing on this screen
+invites interaction except leaving it — or finishing.
 
 **Paused is the re-planning moment**: the full plan block appears while paused, so
 switching tasks mid-round never requires ending the session.
 
-### 8.4 Panel — Break / Micro-break (Recover)
+### 8.4 Panel — Break (Recover)
 
 The **suggestion is the hero**, not the countdown: heading + suggestion above the
 arc, phase-colored per §6. Skip Break is a *low-emphasis text button* (dissuade,
 don't forbid) with the honest counter beneath ("2 breaks skipped today").
-
-The micro-break is **open-ended**: agent waits end unpredictably, so it counts
-*up* (`RESTING · 0:47`), never down — no duration to guess. The dial fills toward
-the auto-resume cap (`microBreakMinutes`, default 3) so a forgotten break can't
-eat the session; `agent-done` or **I'm back** (its only button) ends it sooner.
 
 ### 8.4b The day plan (Plan / Commit / Wrap)
 
@@ -264,13 +255,9 @@ explorer focus). A focus tool that breaks formatting is self-sabotage.
 
 | Command | Old | New default | Rationale |
 |---|---|---|---|
-| Start / Pause / I'm-back | `alt+shift+f` | `alt+shift+d` | D for DevFocus; unbound in stock VS Code |
-| Micro-break | `alt+shift+m` | `alt+shift+m` (keep) | unbound in stock VS Code |
+| Start / Pause | `alt+shift+f` | `alt+shift+d` | D for DevFocus; unbound in stock VS Code |
 | Skip break | `alt+shift+b` | `alt+shift+b` (keep) | unbound in stock VS Code |
 | Reset | `alt+shift+r` | *none* (palette only) | destructive + rare = no default binding |
-
-Toggle is overloaded intentionally: during a micro-break it means "I'm back";
-otherwise start/pause. One key, always "do the obvious thing".
 
 ---
 

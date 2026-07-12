@@ -62,7 +62,6 @@ export interface TimerSnapshot {
   breaksSkippedToday: number;
   windDown: boolean;
   history: DailyRecord[];
-  microBreakActive: boolean;
   planTasks: PlanTask[];
   activeTaskId: string | null;
   laterTasks: LaterTask[];
@@ -100,7 +99,6 @@ export type WebToExtMsg =
   | { type: 'pause' }
   | { type: 'reset' }
   | { type: 'skipBreak' }
-  | { type: 'microBreak' }
   | { type: 'toggleSound' }
   | { type: 'setTask'; label: string }
   | { type: 'addTask'; label: string }

@@ -15,7 +15,7 @@ problem was sustaining focus. AI-assisted engineering inverts the problem:
 - **Sessions no longer have natural ends.** "One more prompt" feels free — the agent
   does the typing. The AI era's productivity risk isn't distraction; it's **never
   disengaging**.
-- **Wait periods are free micro-breaks** that nobody takes.
+- **Wait periods are unstructured downtime** that nobody uses well.
 
 **Product thesis:** DevFocus is the pacing layer for AI-era engineering — it protects
 focus during work, turns agent-wait time into recovery, and gives the day a
@@ -71,15 +71,14 @@ defensible end.
   focus total next to the rhythm strip (a fact, not a chain).
 
 ### Phase 4 — AI-aware features ✅ (shipped in this branch)
-- **"Waiting on AI" quick action**: `Alt+Shift+M`, panel button, or command starts a
-  micro-break implemented as an overlay — the main timer freezes and resumes
-  untouched. Open-ended: it counts up (agent waits end unpredictably), and
-  auto-resumes at a cap (`devfocus.microBreakMinutes`, default 3) so a forgotten
-  break can't eat the session; "I'm back" or `agent-done` ends it sooner.
-- **Agent integration hooks**: URI handler
-  (`vscode://akshayashokcode.devfocus/{micro-break|agent-start|agent-done}`) +
-  `devfocus.microBreak` command; Claude Code hook recipe documented in the README.
-  Story: *"the Pomodoro timer that knows you're pair-programming with an agent."*
+- ~~"Waiting on AI" micro-breaks + agent hooks~~ — shipped, then removed: the
+  quick action required a manual keystroke on every agent wait (30–80/day for a
+  typical AI-assisted session), failing the basic habit test the same way
+  streaks did. Worse, freezing the timer meant `focusMsToday` shrank on
+  heavy-agent-usage days — directly undermining the product's own thesis that
+  agent-wait time is real, countable work. One tip line from its break copy
+  survives in the regular break rotation; the chip, `Alt+Shift+M`, the URI
+  scheme, and `devfocus.microBreakMinutes` are gone.
 
 ### Phase 5 — The Plan moment ✅ (shipped in this branch)
 - **Today list** (max 5): the intent line grown into a list; active task = intent,
@@ -102,5 +101,6 @@ defensible end.
 - No accounts, sync, or cloud — privacy-local is the brand.
 - No website blockers or focus "enforcement".
 - No dashboard-heavy analytics — one rhythm strip, not Grafana.
-- No automatic AI-activity detection via private APIs — the explicit hook/button is
-  more honest and portable across VS Code / Cursor / Windsurf.
+- No automatic AI-activity detection via private APIs — tried as an explicit
+  hook/button instead (§4, Phase 4), then removed when the mechanic itself
+  didn't hold up; not revisited as a background/automatic version either.

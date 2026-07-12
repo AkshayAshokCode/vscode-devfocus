@@ -1,9 +1,14 @@
 # Changelog
 
+## [1.3.1] - 2026-07-12
+
+### Removed
+- "Waiting on AI" micro-breaks and the agent-hook URIs that drove them — the mechanic required a manual keystroke on every agent wait (30-80 times a day for a typical session), which fails the basic habit test, and it froze `focusMsToday` for the duration, so heavier agent usage produced a *smaller* focus number — directly undermining the product's own case that agent-wait time is real work. The break-tip copy it introduced was good, so one honestly-generalizable line survives in the regular break tip rotation; everything else (the chip, `Alt+Shift+M`, the URI scheme, `devfocus.microBreakMinutes`) is gone
+
 ## [1.3.0] - 2026-07-11
 
 ### Changed
-- README screenshots — real captures added at `screenshot/` (Today's plan, Focus, Waiting on AI); excluded from the packaged `.vsix` via `.vscodeignore` since the Marketplace resolves relative image links through the `repository` field instead
+- README screenshots — real captures added at `screenshot/` (Today's plan, Focus, Break); excluded from the packaged `.vsix` via `.vscodeignore` since the Marketplace resolves relative image links through the `repository` field instead
 - README restructured — tagline aligned with the marketplace description ("focus timer and day plan for engineers working with AI"), features regrouped by theme instead of one flat list, added a table of contents and a Design Principles section linking to the `docs/` specs
 
 ### Fixed
@@ -19,7 +24,6 @@
 - Removed the blinking timer colon — the ticking seconds already signal "running", and a 1 Hz blink fights the panel's ambient design (it also made every screenshot look broken)
 
 ### Fixed
-- Micro-break arc rendered in the focus signal color instead of the intended dimmed recovery treatment — a micro-break's underlying phase is always WORK (it's an overlay, not a phase change), so `.phase-work` and `.screen-micro` were both on the body at once; with equal CSS specificity, file order decided the winner. Fixed by raising the micro-break rule's specificity so it wins regardless of source order.
 - Paused focus screen showed the active task twice — once properly in Today's Plan (with its session tag and active marker), once again as a bare, unstyled row from the standalone intent line, which was never hidden for this state. The intent line now hides whenever the plan is showing (idle, and paused-on-focus).
 - Wind-down showed the same "6/8 today · 2h 30m focused" fact twice — once in the info line, once in the day-summary card directly below it (which already includes it, plus breaks skipped). The info line now hides while the card is showing.
 - Focus arc, session segments, and rhythm bars were nearly invisible on Cursor's default themes — the signal color used `focusBorder`, which Cursor Dark defines at 15% alpha (and Cursor Dark Midnight as fully transparent); the signal now uses `progressBar.background`, which every theme must keep visible

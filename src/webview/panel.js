@@ -11,17 +11,12 @@
     'Stand up and stretch. Shoulders first.',
     'Refill your water. Hydration is a feature.',
     'Unclench your jaw, drop your shoulders, breathe.',
+    'Stand and stretch. You\'ll review better for it.',
   ];
   const LONG_BREAK_TIPS = [
     'Round complete. Really step away — you\'ve earned it.',
     'A short walk now beats a slow evening later.',
     'Leave the desk. The next round will thank you.',
-  ];
-  const MICRO_TIPS = [
-    'The agent\'s working — rest your eyes while it does.',
-    'Look 20 feet away for 20 seconds. The diff will wait.',
-    'Stand and stretch. You\'ll review better for it.',
-    'Shoulders down, jaw unclenched, one slow breath.',
   ];
 
   // DOM refs
@@ -43,8 +38,6 @@
   const btnPause       = document.getElementById('btn-pause');
   const btnReset       = document.getElementById('btn-reset');
   const btnSkip        = document.getElementById('btn-skip');
-  const btnMicro       = document.getElementById('btn-micro');
-  const btnMicroEnd    = document.getElementById('btn-micro-end');
   const skipNote       = document.getElementById('skip-note');
   const dsStats        = document.getElementById('ds-stats');
   const dsTriage       = document.getElementById('ds-triage');
@@ -112,7 +105,6 @@
   // One state, one screen
   function screenFor(snap) {
     if (snap.firstRun) return 'setup';
-    if (snap.microBreakActive) return 'micro';
     if (snap.phase !== 'WORK') return 'break';
     if (snap.state === 'IDLE') return 'idle';
     return 'focus';
@@ -126,7 +118,7 @@
     const body = document.body;
 
     // Screen / phase / state classes on body — CSS does the showing and hiding
-    body.classList.remove('screen-setup', 'screen-idle', 'screen-focus', 'screen-break', 'screen-micro');
+    body.classList.remove('screen-setup', 'screen-idle', 'screen-focus', 'screen-break');
     body.classList.add(`screen-${screen}`);
 
     body.classList.remove('phase-work', 'phase-break', 'phase-long-break');
@@ -163,18 +155,12 @@
     lastPhase = phase;
 
     // Labels inside the arc — only when the number needs naming: FOCUS while
-    // focusing, RESTING while a micro-break counts up. Idle shows the bare
-    // contract; the segments carry round progress.
-    phaseLabel.textContent = screen === 'micro' ? 'Resting' : screen === 'focus' ? 'Focus' : '';
+    // focusing. Idle shows the bare contract; the segments carry round progress.
+    phaseLabel.textContent = screen === 'focus' ? 'Focus' : '';
 
-    // Break / micro heading
+    // Break heading
     if (screen === 'break') {
       breakTitle.textContent = phase === 'LONG_BREAK' ? 'Long break' : 'Break time';
-    } else if (screen === 'micro') {
-      breakTitle.textContent = 'Micro-break';
-      if (lastScreen !== 'micro') {
-        breakSub.textContent = MICRO_TIPS[Math.floor(Math.random() * MICRO_TIPS.length)];
-      }
     }
     lastScreen = screen;
 
@@ -584,8 +570,6 @@
   btnPause.addEventListener('click',    () => vscode.postMessage({ type: 'pause' }));
   btnReset.addEventListener('click',    () => vscode.postMessage({ type: 'reset' }));
   btnSkip.addEventListener('click',     () => vscode.postMessage({ type: 'skipBreak' }));
-  btnMicro.addEventListener('click',    () => vscode.postMessage({ type: 'microBreak' }));
-  btnMicroEnd.addEventListener('click', () => vscode.postMessage({ type: 'microBreak' }));
   settingsBtn.addEventListener('click', () => vscode.postMessage({ type: 'openSettings' }));
   soundBtn.addEventListener('click',    () => vscode.postMessage({ type: 'toggleSound' }));
 
