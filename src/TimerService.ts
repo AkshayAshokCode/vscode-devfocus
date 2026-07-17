@@ -15,7 +15,6 @@ import {
 const PERSIST_KEY = 'devfocus.state';
 const PERSIST_INTERVAL_TICKS = 30;
 const MILESTONE_INTERVAL = 5;
-const HISTORY_DAYS = 30;
 const PLAN_MAX = 5;
 const LATER_MAX = 10; // gates manual adds only; demotion and rollover always succeed
 const LATER_STALE_DAYS = 7;
@@ -33,6 +32,9 @@ export class TimerService {
   private phase: TimerPhase = TimerPhase.WORK;
   private remainingMs: number;
   private totalMs: number;
+  // Wall-clock deadline for a running break/long break (WORK uses tick-count instead — see tick()).
+  // Non-null only while state is RUNNING and phase isn't WORK.
+  private phaseEndsAt: number | null = null;
   private currentSession: number = 1;
   private settings: PomodoroSettings;
   private completedSessionsToday: number = 0;
@@ -150,9 +152,6 @@ export class TimerService {
           tasksPlanned: this.planTasks.length || undefined,
           tasksDone: this.planTasks.filter(t => t.done).length || undefined,
         });
-        if (this.history.length > HISTORY_DAYS) {
-          this.history = this.history.slice(-HISTORY_DAYS);
-        }
       }
 
       // Done tasks become numbers; unfinished ones wait in Later for tomorrow
@@ -198,7 +197,14 @@ export class TimerService {
       return;
     }
 
-    this.remainingMs -= 1000;
+    if (this.phase !== TimerPhase.WORK && this.phaseEndsAt !== null) {
+      // Breaks track real elapsed time, so a system sleep/lock doesn't silently
+      // pause a break the user actually took — it's already over on wake, same as
+      // if they'd stood up and walked away from an analog clock.
+      this.remainingMs = Math.max(0, this.phaseEndsAt - Date.now());
+    } else {
+      this.remainingMs -= 1000;
+    }
     this.tickCount++;
     if (this.phase === TimerPhase.WORK) {
       this.focusMsToday += 1000;
@@ -242,6 +248,7 @@ export class TimerService {
         this.totalMs = this.settings.longBreakMinutes * 60 * 1000;
         this.remainingMs = this.totalMs;
         this.state = TimerState.RUNNING;
+        this.phaseEndsAt = Date.now() + this.totalMs;
         if (this.soundEnabled) { this.onPlaySound('complete'); }
         if (this.notificationsEnabled) {
           this.onNotify(
@@ -254,6 +261,7 @@ export class TimerService {
         this.totalMs = this.settings.breakMinutes * 60 * 1000;
         this.remainingMs = this.totalMs;
         this.state = TimerState.RUNNING;
+        this.phaseEndsAt = Date.now() + this.totalMs;
         if (this.soundEnabled) { this.onPlaySound('work'); }
         if (this.notificationsEnabled) {
           this.onNotify(
@@ -274,6 +282,7 @@ export class TimerService {
       this.phase = TimerPhase.WORK;
       this.totalMs = this.settings.sessionMinutes * 60 * 1000;
       this.remainingMs = this.totalMs;
+      this.phaseEndsAt = null;
 
       if (this.soundEnabled) { this.onPlaySound('break'); }
 
@@ -345,6 +354,9 @@ export class TimerService {
     if (this.state === TimerState.IDLE || this.state === TimerState.PAUSED) {
       this.firstRun = false;
       this.state = TimerState.RUNNING;
+      if (this.phase !== TimerPhase.WORK) {
+        this.phaseEndsAt = Date.now() + this.remainingMs;
+      }
       this.persistState();
       this.onSnapshot(this.buildSnapshot());
     }
@@ -353,6 +365,12 @@ export class TimerService {
   pause(): void {
     if (this.state === TimerState.RUNNING) {
       this.state = TimerState.PAUSED;
+      if (this.phaseEndsAt !== null) {
+        // Freeze whatever real time was left — a manual pause is deliberate, unlike
+        // a sleep/lock, so it should behave the same way focus pausing does.
+        this.remainingMs = Math.max(0, this.phaseEndsAt - Date.now());
+        this.phaseEndsAt = null;
+      }
       this.persistState();
       this.onSnapshot(this.buildSnapshot());
     }
@@ -372,6 +390,7 @@ export class TimerService {
     this.currentSession = 1;
     this.totalMs = this.settings.sessionMinutes * 60 * 1000;
     this.remainingMs = this.totalMs;
+    this.phaseEndsAt = null;
     this.persistState();
     this.onSnapshot(this.buildSnapshot());
   }
@@ -389,6 +408,7 @@ export class TimerService {
       this.phase = TimerPhase.WORK;
       this.totalMs = this.settings.sessionMinutes * 60 * 1000;
       this.remainingMs = this.totalMs;
+      this.phaseEndsAt = null;
       this.state = TimerState.IDLE;
       this.persistState();
       this.onSnapshot(this.buildSnapshot());
@@ -601,6 +621,20 @@ export class TimerService {
 
   getSnapshot(): TimerSnapshot {
     return this.buildSnapshot();
+  }
+
+  /** Full, uncapped daily history — including today's still-live counters — for the History view. */
+  getFullHistory(): DailyRecord[] {
+    const today: DailyRecord = {
+      date: this.lastSessionDate || isoDate(new Date()),
+      sessions: this.completedSessionsToday,
+      focusMs: this.focusMsToday,
+      breaksTaken: this.breaksTakenToday,
+      breaksSkipped: this.breaksSkippedToday,
+      tasksPlanned: this.planTasks.length || undefined,
+      tasksDone: this.planTasks.filter(t => t.done).length || undefined,
+    };
+    return [...this.history, today];
   }
 
   private dispose(): void {

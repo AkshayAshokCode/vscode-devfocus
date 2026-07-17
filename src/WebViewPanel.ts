@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import { TimerService } from './TimerService';
 import { TimerSnapshot, WebToExtMsg } from './types';
+import { HistoryPanel } from './HistoryPanel';
 
 export class WebViewPanel implements vscode.WebviewViewProvider {
   public static readonly viewId = 'devfocus.panel';
@@ -61,6 +62,9 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
           break;
         case 'openSettings':
           vscode.commands.executeCommand('workbench.action.openSettings', 'devfocus');
+          break;
+        case 'openHistory':
+          HistoryPanel.createOrShow(this.context, this.timerService.getFullHistory());
           break;
       }
     });

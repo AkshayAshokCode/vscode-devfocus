@@ -1,0 +1,99 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /* Same signal convention as the panel: the theme's own progress color, one hue only */
+  --df-signal: var(--vscode-progressBar-background, var(--vscode-focusBorder, #0078d4));
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background: var(--vscode-editor-background);
+  padding: 28px;
+}
+
+#history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+#history-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#history-total {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+#history-grid {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  padding-top: 18px;
+  padding-bottom: 8px;
+}
+
+.history-week {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+  flex: none;
+}
+
+.history-month-label {
+  position: absolute;
+  top: -16px;
+  left: 0;
+  font-size: 9.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--vscode-descriptionForeground);
+  white-space: nowrap;
+}
+
+.history-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--vscode-widget-border, #444);
+}
+
+.history-cell.l1 { background: var(--df-signal); opacity: 0.3; }
+.history-cell.l2 { background: var(--df-signal); opacity: 0.55; }
+.history-cell.l3 { background: var(--df-signal); opacity: 0.8; }
+.history-cell.l4 { background: var(--df-signal); opacity: 1; }
+
+#history-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 20px;
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.legend-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--vscode-widget-border, #444);
+}
+.legend-swatch.l1 { background: var(--df-signal); opacity: 0.3; }
+.legend-swatch.l2 { background: var(--df-signal); opacity: 0.55; }
+.legend-swatch.l3 { background: var(--df-signal); opacity: 0.8; }
+.legend-swatch.l4 { background: var(--df-signal); opacity: 1; }
+
+#history-empty {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+}

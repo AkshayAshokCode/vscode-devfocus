@@ -53,6 +53,7 @@
   const rhythmWrap     = document.getElementById('rhythm-wrap');
   const rhythmBars     = document.getElementById('rhythm-bars');
   const rhythmTotal    = document.getElementById('rhythm-total');
+  const rhythmHistoryBtn = document.getElementById('rhythm-history-btn');
   const pauseBadge     = document.getElementById('pause-badge');
   const breakTitle     = document.getElementById('break-title');
   const breakSub       = document.getElementById('break-sub');
@@ -250,8 +251,11 @@
     }
     lastMode = settings.mode;
 
-    // Intent input — sync value only if it differs (avoid clobbering mid-type)
-    if (taskInput.value !== taskLabel) {
+    // Intent input — sync from the snapshot only when it isn't focused. The commit is
+    // debounced, so continuous typing (each keystroke resets the debounce) can leave the
+    // server's taskLabel stale for over a second; syncing while focused would let the next
+    // tick's snapshot clobber live keystrokes with that stale value.
+    if (document.activeElement !== taskInput && taskInput.value !== taskLabel) {
       taskInput.value = taskLabel;
     }
 
@@ -572,6 +576,7 @@
   btnSkip.addEventListener('click',     () => vscode.postMessage({ type: 'skipBreak' }));
   settingsBtn.addEventListener('click', () => vscode.postMessage({ type: 'openSettings' }));
   soundBtn.addEventListener('click',    () => vscode.postMessage({ type: 'toggleSound' }));
+  rhythmHistoryBtn.addEventListener('click', () => vscode.postMessage({ type: 'openHistory' }));
 
   modeSelect.addEventListener('change', () => {
     vscode.postMessage({ type: 'applyMode', mode: modeSelect.value });
@@ -603,6 +608,11 @@
     taskDebounce = setTimeout(() => {
       vscode.postMessage({ type: 'setTask', label: taskInput.value });
     }, 400);
+  });
+  // Flush immediately on blur so a still-pending debounce isn't lost if focus leaves early
+  taskInput.addEventListener('blur', () => {
+    clearTimeout(taskDebounce);
+    vscode.postMessage({ type: 'setTask', label: taskInput.value });
   });
 
   // ── Custom timings disclosure ─────────────────────────────────

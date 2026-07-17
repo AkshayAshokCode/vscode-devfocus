@@ -627,6 +627,30 @@ button {
   color: var(--vscode-descriptionForeground);
 }
 
+#rhythm-head-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#rhythm-history-btn {
+  background: none;
+  border: none;
+  color: var(--vscode-descriptionForeground);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 1px 2px;
+  border-radius: 2px;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+}
+#rhythm-history-btn:hover {
+  opacity: 1;
+  color: var(--vscode-foreground);
+  background: var(--vscode-toolbar-hoverBackground);
+}
+
 
 #rhythm-bars {
   display: flex;

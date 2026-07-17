@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.0] - 2026-07-17
+
+### Added
+- Full history view — a history icon next to the rhythm strip's "Last 7 days" header opens a dedicated, read-only calendar (a GitHub-contributions-style heatmap) covering every day since your first recorded session, not just the last 7. Hovering a day shows its session count, focus time, and — when that day had a plan — tasks done
+- Daily history is no longer capped at 30 days; it's retained indefinitely so the full history view has something to show beyond a month
+
+### Fixed
+- Typing into the intent line could get silently wiped mid-sentence — the once-a-second snapshot sync would overwrite the field with a stale server value whenever the debounced commit hadn't landed yet, which continuous typing prevented from ever firing (each keystroke pushed the debounce back). The field now only syncs from a snapshot while it isn't focused, and blur flushes any pending edit immediately so nothing is lost
+- A break effectively paused itself across system sleep or a locked screen — the countdown only advanced once per elapsed tick, so time spent asleep was silently skipped and the break picked back up wherever it had frozen instead of reflecting the real time that passed. Breaks now track a wall-clock deadline instead of a tick count, so waking mid-break correctly shows it as already over (and auto-starts the next session, if enabled) rather than resuming a stale countdown. Focus sessions are unchanged — pausing progress while away from the keyboard is still the correct behavior there
+
 ## [1.3.1] - 2026-07-12
 
 ### Removed

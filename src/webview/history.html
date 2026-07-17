@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'none'; style-src {{cspSource}} 'nonce-{{nonce}}'; script-src 'nonce-{{nonce}}';" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="{{cssUri}}" />
+  <title>DevFocus History</title>
+</head>
+<body>
+  <div id="history-head">
+    <span id="history-title">History</span>
+    <span id="history-total"></span>
+  </div>
+  <div id="history-grid" role="img" aria-label="Daily focus history, all time"></div>
+  <div id="history-legend">
+    <span>Less</span>
+    <span class="legend-swatch l0"></span>
+    <span class="legend-swatch l1"></span>
+    <span class="legend-swatch l2"></span>
+    <span class="legend-swatch l3"></span>
+    <span class="legend-swatch l4"></span>
+    <span>More</span>
+  </div>
+  <script nonce="{{nonce}}">window.__DEVFOCUS_HISTORY__ = {{historyJson}};</script>
+  <script nonce="{{nonce}}" src="{{jsUri}}"></script>
+</body>
+</html>

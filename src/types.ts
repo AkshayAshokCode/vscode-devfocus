@@ -113,7 +113,8 @@ export type WebToExtMsg =
   | { type: 'triageOpenTasks' }
   | { type: 'applyMode'; mode: PomodoroMode }
   | { type: 'applyCustomSettings'; sessionMinutes: number; breakMinutes: number; sessionsPerRound: number; longBreakMinutes: number }
-  | { type: 'openSettings' };
+  | { type: 'openSettings' }
+  | { type: 'openHistory' };
 
 export const PRESET_SETTINGS: Record<PomodoroMode, PomodoroSettings> = {
   [PomodoroMode.CLASSIC]: {
