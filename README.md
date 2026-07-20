@@ -17,6 +17,7 @@ not the old 9-to-5.
 - [Why](#why)
 - [Screenshots](#screenshots)
 - [Features](#features)
+- [Installation](#installation)
 - [Getting Started](#getting-started)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Modes](#modes)
@@ -68,9 +69,22 @@ a defensible end to the day.
 - **Skip-break friction** — skipping is always allowed, but the cost is visible, not hidden
 - **Break suggestions** — a rotating, screen-appropriate nudge instead of a bare countdown
 
+## Installation
+
+**VS Code**
+
+- From the Extensions view: search for `DevFocus` and click **Install**, or
+- From the Marketplace: [install DevFocus](https://marketplace.visualstudio.com/items?itemName=akshayashokcode.devfocus), or
+- From the command line: `code --install-extension akshayashokcode.devfocus`
+
+**Cursor / other Open VSX editors**
+
+- From the Extensions view: search for `DevFocus` and click **Install**, or
+- From Open VSX: [install DevFocus](https://open-vsx.org/extension/akshayashokcode/devfocus)
+
 ## Getting Started
 
-1. Install DevFocus from the VS Code Marketplace or Open VSX
+1. Install DevFocus (see [Installation](#installation) above)
 2. Click the DevFocus icon in the Activity Bar to open the panel
 3. Pick a rhythm, write down what you're working on, and press **Start**
 
