@@ -66,6 +66,7 @@ a defensible end to the day.
 
 - **Daily goal & wind-down** — set a session target and an evening hour; after it, DevFocus nudges you to wrap up with a day summary instead of another session
 - **Weekly rhythm** — a 7-day strip of your focus history and the week's total, kept locally for 30 days — a fact, not a streak to maintain
+- **Full history view** — a GitHub-style contribution heatmap of every day you've used DevFocus, opened from the rhythm strip's history icon
 - **Skip-break friction** — skipping is always allowed, but the cost is visible, not hidden
 - **Break suggestions** — a rotating, screen-appropriate nudge instead of a bare countdown
 
