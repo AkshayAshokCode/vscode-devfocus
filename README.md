@@ -61,7 +61,7 @@ a defensible end to the day.
 
 ### Today's plan
 
-- **Day plan** — write 3–5 tasks for today; the active one becomes your intent in the status bar and sessions count against it automatically
+- **Day plan** — write up to 5 tasks for today; the active one becomes your intent in the status bar and sessions count against it automatically
 - **Reorder & rename in place** — priorities change; drag isn't required, hover reveals the controls
 - **Complete mid-session** — check off the active task without stopping the timer; the next open one steps in
 - **Later tray** — capture stray thoughts with `Alt+Shift+A` from anywhere, without leaving your code; promote them to today when their time comes
@@ -69,7 +69,7 @@ a defensible end to the day.
 ### Real breaks, not just timers
 
 - **Daily goal & wind-down** — set a session target and an evening hour; after it, DevFocus nudges you to wrap up with a day summary instead of another session
-- **Weekly rhythm** — a 7-day strip of your focus history and the week's total, kept locally for 30 days — a fact, not a streak to maintain
+- **Weekly rhythm** — a 7-day strip of your focus history and the week's total — a fact, not a streak to maintain
 - **Full history view** — a GitHub-style contribution heatmap of every day you've used DevFocus, opened from the rhythm strip's history icon
 - **Skip-break friction** — skipping is always allowed, but the cost is visible, not hidden
 - **Break suggestions** — a rotating, screen-appropriate nudge instead of a bare countdown

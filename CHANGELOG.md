@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.1] - 2026-07-26
+
+### Changed
+- README — added a full history view screenshot, an Installation section with direct links/CLI for VS Code and Open VSX, a VS Code version requirement, and a note that session history stays local (VS Code extension storage, never synced)
+- README — removed the stale "kept locally for 30 days" claim on the weekly rhythm bullet (history retention was uncapped in 1.4.0) and corrected the day plan bullet from "3–5 tasks" to "up to 5 tasks" (no enforced minimum)
+
 ## [1.4.0] - 2026-07-17
 
 ### Added
