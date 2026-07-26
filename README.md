@@ -45,6 +45,10 @@ a defensible end to the day.
 |---|---|
 | ![Break screen](screenshot/break.png) | ![Wind-down day summary](screenshot/idle-wind-down-custom.png) |
 
+| Full history — every day since you started |
+|---|
+| ![Full history heatmap](screenshot/history.png) |
+
 ## Features
 
 ### Focus, your way
@@ -71,6 +75,8 @@ a defensible end to the day.
 - **Break suggestions** — a rotating, screen-appropriate nudge instead of a bare countdown
 
 ## Installation
+
+Requires VS Code 1.85 or later (or a compatible fork like Cursor).
 
 **VS Code**
 
@@ -124,7 +130,9 @@ Reset has no default shortcut (it's destructive and rare) — run `DevFocus: Res
 DevFocus is deliberately quiet: no accounts, no telemetry, no gamification.
 Streaks were built and removed — loss-aversion mechanics punish rest, which
 contradicts the point of the tool. Consistency shows up as facts (a rhythm
-strip, a weekly total), never as a chain to maintain. Everything stays local.
+strip, a weekly total), never as a chain to maintain. Everything stays local —
+your session history never leaves your machine, stored in VS Code's own
+extension storage, not synced to any server.
 
 The full reasoning — strategy, interaction rules, and pixel-level spec — is
 written down, not just implemented:
