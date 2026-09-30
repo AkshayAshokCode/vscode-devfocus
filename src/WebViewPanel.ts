@@ -61,7 +61,7 @@ export class WebViewPanel implements vscode.WebviewViewProvider {
           );
           break;
         case 'openSettings':
-          vscode.commands.executeCommand('workbench.action.openSettings', 'devfocus');
+          vscode.commands.executeCommand('workbench.action.openSettings', msg.query ?? 'devfocus');
           break;
         case 'openHistory':
           HistoryPanel.createOrShow(this.context, this.timerService.getFullHistory());

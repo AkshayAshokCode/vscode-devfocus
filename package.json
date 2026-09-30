@@ -138,6 +138,13 @@
           "maximum": 24,
           "description": "Daily session goal shown in the panel and status bar (0 to disable)"
         },
+        "devfocus.maxPlanTasks": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Maximum number of tasks in Today's plan. A short list keeps the day realistic — raise it if you need more room."
+        },
         "devfocus.windDownTime": {
           "type": "string",
           "default": "18:00",

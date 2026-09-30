@@ -33,7 +33,9 @@
   const taskWrap       = document.getElementById('task-wrap');
   const taskInput      = document.getElementById('task-input');
   const intentDone     = document.getElementById('intent-done');
-  const btnStart       = document.getElementById('btn-start');
+  const intentFull     = document.getElementById('intent-full');
+  let intentAddsTask = false; // intent box is in "Add next task…" mode (set per snapshot)
+  const btnStart      = document.getElementById('btn-start');
   const btnStartLabel  = document.getElementById('btn-start-label');
   const btnPause       = document.getElementById('btn-pause');
   const btnReset       = document.getElementById('btn-reset');
@@ -44,6 +46,7 @@
   const planCount      = document.getElementById('plan-count');
   const planList       = document.getElementById('plan-list');
   const planAdd        = document.getElementById('plan-add');
+  const planFullNote   = document.getElementById('plan-full');
   const laterWrap      = document.getElementById('later-wrap');
   const laterToggle    = document.getElementById('later-toggle');
   const laterChevron   = document.getElementById('later-chevron');
@@ -114,7 +117,7 @@
   function applySnapshot(snap) {
     lastSnapshot = snap;
     const prevPhase = lastPhase;
-    const { state, phase, timeDisplay: td, progress, currentSession, settings, dailyCount: dc, dailyGoal, focusMsToday, breaksSkippedToday, windDown, history, planTasks, activeTaskId, laterTasks, soundEnabled, taskLabel } = snap;
+    const { state, phase, timeDisplay: td, progress, currentSession, settings, dailyCount: dc, dailyGoal, focusMsToday, breaksSkippedToday, windDown, history, planTasks, activeTaskId, laterTasks, planMax, soundEnabled, taskLabel } = snap;
     const screen = screenFor(snap);
     const body = document.body;
 
@@ -197,7 +200,7 @@
     renderRhythm(history || [], dc, focusMsToday);
 
     // Day plan (idle screen)
-    renderPlan(planTasks || [], activeTaskId || null, laterTasks || []);
+    renderPlan(planTasks || [], activeTaskId || null, laterTasks || [], planMax);
 
     // Wind-down triage: sweep open tasks to Later in one click
     if (windDown && openCount > 0) {
@@ -263,6 +266,21 @@
     // line — which then reads as a task row (check + left text), not a centered line
     const showIntentDone = screen === 'focus' && !!activeTaskId;
     intentDone.style.display = showIntentDone ? '' : 'none';
+
+    // Every task in the plan is done mid-session: the blank intent box takes the next
+    // task (Enter adds it to the plan and makes it active) — or, once the plan is at
+    // its limit, gives way to a note pointing at the setting instead
+    const plan = planTasks || [];
+    const planDone = screen === 'focus' && plan.length > 0 && !activeTaskId;
+    const planSpent = planDone && plan.length >= planMax;
+    intentAddsTask = planDone && !planSpent;
+    taskInput.placeholder = intentAddsTask ? 'Add next task…' : 'What are you working on?';
+    taskInput.setAttribute('aria-label', intentAddsTask ? "Add the next task to today's plan" : 'Current intent');
+    taskInput.style.display = planSpent ? 'none' : '';
+    intentFull.style.display = planSpent ? '' : 'none';
+    if (planSpent) {
+      intentFull.querySelector('.limit-msg').textContent = planLimitMessage(plan);
+    }
     taskWrap.classList.toggle('has-check', showIntentDone);
     if (showIntentDone) {
       const doneTitle = `Mark "${taskLabel}" done`;
@@ -369,7 +387,6 @@
   // Icon language: chevrons move a task within its own list (priority order);
   // arrows move a task between lists (Today ⇄ Later). The two never overlap,
   // so a hovered row never reads ambiguously.
-  const PLAN_MAX = 5;
   const STALE_DAYS = 7;
   let planKey = '';
   let laterExpanded = false;
@@ -407,8 +424,14 @@
   function rerenderPlanNow() {
     planKey = ''; // bypass the memo guard — something not reflected in the data itself changed
     if (lastSnapshot) {
-      renderPlan(lastSnapshot.planTasks || [], lastSnapshot.activeTaskId || null, lastSnapshot.laterTasks || []);
+      renderPlan(lastSnapshot.planTasks || [], lastSnapshot.activeTaskId || null, lastSnapshot.laterTasks || [], lastSnapshot.planMax);
     }
+  }
+
+  function planLimitMessage(plan) {
+    return plan.every(t => t.done)
+      ? `All ${plan.length} tasks done — that's a full day.`
+      : "Today's plan is full.";
   }
 
   function startEditing(id) {
@@ -458,8 +481,8 @@
     return label;
   }
 
-  function renderPlan(plan, activeId, later) {
-    const key = JSON.stringify([plan, activeId, later, laterExpanded, editingId]);
+  function renderPlan(plan, activeId, later, planMax) {
+    const key = JSON.stringify([plan, activeId, later, planMax, laterExpanded, editingId]);
     if (key === planKey) return;
     planKey = key;
 
@@ -519,7 +542,12 @@
       planList.appendChild(row);
     }
 
-    planAdd.style.display = plan.length >= PLAN_MAX ? 'none' : '';
+    const planFull = plan.length >= planMax;
+    planAdd.style.display = planFull ? 'none' : '';
+    planFullNote.style.display = planFull ? '' : 'none';
+    if (planFull) {
+      planFullNote.querySelector('.limit-msg').textContent = planLimitMessage(plan);
+    }
 
     // Later tray — collapsed by default, hidden when empty
     laterWrap.style.display = later.length > 0 ? '' : 'none';
@@ -535,7 +563,6 @@
 
     laterList.innerHTML = '';
     if (laterExpanded) {
-      const planFull = plan.length >= PLAN_MAX;
       for (const t of later) {
         const row = document.createElement('li');
         row.className = 'task-row' + (t.addedDate < cutoff ? ' stale' : '');
@@ -594,6 +621,8 @@
     rerenderPlanNow();
   });
   laterClear.addEventListener('click', () => vscode.postMessage({ type: 'clearOldLater' }));
+  document.querySelectorAll('.limit-link').forEach(link => link.addEventListener('click',
+    () => vscode.postMessage({ type: 'openSettings', query: 'devfocus.maxPlanTasks' })));
   intentDone.addEventListener('click', () => {
     if (lastSnapshot && lastSnapshot.activeTaskId) {
       vscode.postMessage({ type: 'toggleTaskDone', id: lastSnapshot.activeTaskId });
@@ -601,17 +630,33 @@
   });
   dsTriage.addEventListener('click', () => vscode.postMessage({ type: 'triageOpenTasks' }));
 
-  // Intent input — debounced to avoid firing on every keystroke
+  // Intent input — debounced to avoid firing on every keystroke. In "Add next task…"
+  // mode nothing is sent while typing: the text only lands, as a task, on Enter.
   let taskDebounce;
   taskInput.addEventListener('input', () => {
     clearTimeout(taskDebounce);
+    if (intentAddsTask) return;
     taskDebounce = setTimeout(() => {
       vscode.postMessage({ type: 'setTask', label: taskInput.value });
     }, 400);
   });
+  taskInput.addEventListener('keydown', e => {
+    if (!intentAddsTask) return;
+    if (e.key === 'Enter' && taskInput.value.trim()) {
+      e.preventDefault();
+      // The new task becomes the active one, so its name simply stays in the box
+      vscode.postMessage({ type: 'addTask', label: taskInput.value });
+      taskInput.value = taskInput.value.trim();
+      taskInput.blur();
+    } else if (e.key === 'Escape') {
+      taskInput.value = '';
+      taskInput.blur();
+    }
+  });
   // Flush immediately on blur so a still-pending debounce isn't lost if focus leaves early
   taskInput.addEventListener('blur', () => {
     clearTimeout(taskDebounce);
+    if (intentAddsTask) return;
     vscode.postMessage({ type: 'setTask', label: taskInput.value });
   });
 

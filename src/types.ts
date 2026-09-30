@@ -65,6 +65,7 @@ export interface TimerSnapshot {
   planTasks: PlanTask[];
   activeTaskId: string | null;
   laterTasks: LaterTask[];
+  planMax: number;
   soundEnabled: boolean;
   autoStartNextSession: boolean;
   taskLabel: string;
@@ -113,7 +114,7 @@ export type WebToExtMsg =
   | { type: 'triageOpenTasks' }
   | { type: 'applyMode'; mode: PomodoroMode }
   | { type: 'applyCustomSettings'; sessionMinutes: number; breakMinutes: number; sessionsPerRound: number; longBreakMinutes: number }
-  | { type: 'openSettings' }
+  | { type: 'openSettings'; query?: string }
   | { type: 'openHistory' };
 
 export const PRESET_SETTINGS: Record<PomodoroMode, PomodoroSettings> = {

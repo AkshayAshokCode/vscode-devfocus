@@ -78,6 +78,10 @@
       <ul id="plan-list" aria-label="Today's tasks"></ul>
       <input id="plan-add" type="text" maxlength="60"
         placeholder="Add a task…" aria-label="Add a task to today's plan" />
+      <div id="plan-full" class="limit-note" style="display:none">
+        <span class="limit-msg"></span>
+        <button class="limit-link">Raise the limit in settings</button>
+      </div>
       <div id="later-wrap">
         <div id="later-head">
           <button id="later-toggle" aria-expanded="false" aria-controls="later-list">
@@ -98,6 +102,10 @@
       <input id="task-input" type="text" maxlength="60"
         placeholder="What are you working on?"
         aria-label="Current intent" />
+      <div id="intent-full" class="limit-note" style="display:none">
+        <span class="limit-msg"></span>
+        <button class="limit-link">Raise the limit in settings</button>
+      </div>
     </div>
 
     <!-- Break heading (break screen only) -->

@@ -61,7 +61,7 @@ a defensible end to the day.
 
 ### Today's plan
 
-- **Day plan** — write up to 5 tasks for today; the active one becomes your intent in the status bar and sessions count against it automatically
+- **Day plan** — write up to 5 tasks for today (adjustable in settings); the active one becomes your intent in the status bar and sessions count against it automatically
 - **Reorder & rename in place** — priorities change; drag isn't required, hover reveals the controls
 - **Complete mid-session** — check off the active task without stopping the timer; the next open one steps in
 - **Later tray** — capture stray thoughts with `Alt+Shift+A` from anywhere, without leaving your code; promote them to today when their time comes
@@ -123,6 +123,7 @@ Reset has no default shortcut (it's destructive and rare) — run `DevFocus: Res
 | `devfocus.defaultMode` | `"CLASSIC"` | Mode applied on first launch |
 | `devfocus.longBreakMinutes` | `15` | Default long break length for Custom mode |
 | `devfocus.dailyGoal` | `8` | Daily session goal shown in panel and status bar (0 disables) |
+| `devfocus.maxPlanTasks` | `5` | Maximum tasks in Today's plan (1–20) |
 | `devfocus.windDownTime` | `"18:00"` | After this hour DevFocus nudges you to wrap up (empty disables) |
 
 ## Design Principles

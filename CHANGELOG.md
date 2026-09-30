@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- `devfocus.maxPlanTasks` setting (default 5, range 1–20) — the day plan's task limit is no longer fixed. When the plan is full, the add box is replaced by a note with a link straight to the setting
+
+### Fixed
+- Focus sessions now pause when you step away — closing the lid (sleep) or locking the screen (macOS) — and resume on their own when you're back; time away isn't counted as focus. Breaks keep running through both
+- Completing the last open task mid-session no longer leaves an empty intent box whose text never reached the plan. It now reads "Add next task…" and Enter adds the task to Today's plan as the active one; once the plan is at its limit, the box gives way to a note linking to the limit setting
+
 ## [1.4.1] - 2026-07-26
 
 ### Changed

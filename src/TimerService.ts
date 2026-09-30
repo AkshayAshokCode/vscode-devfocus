@@ -15,7 +15,6 @@ import {
 const PERSIST_KEY = 'devfocus.state';
 const PERSIST_INTERVAL_TICKS = 30;
 const MILESTONE_INTERVAL = 5;
-const PLAN_MAX = 5;
 const LATER_MAX = 10; // gates manual adds only; demotion and rollover always succeed
 const LATER_STALE_DAYS = 7;
 // A tick arriving this late means the machine slept (e.g. lid closed) — timers don't fire while suspended
@@ -53,6 +52,7 @@ export class TimerService {
   private autoStartNextSession: boolean;
   private notificationsEnabled: boolean;
   private dailyGoal: number;
+  private planMax: number; // gates adds/promotes only — lowering it never drops existing tasks
   private windDownTime: string;
   private taskLabel: string = '';
   private firstRun: boolean = false;
@@ -76,6 +76,7 @@ export class TimerService {
     this.autoStartNextSession = cfg.get('autoStartNextSession', true);
     this.notificationsEnabled = cfg.get('notificationsEnabled', true);
     this.dailyGoal = cfg.get('dailyGoal', 8);
+    this.planMax = cfg.get('maxPlanTasks', 5);
     this.windDownTime = cfg.get('windDownTime', '18:00');
 
     const defaultMode = cfg.get<string>('defaultMode', 'CLASSIC') as PomodoroMode;
@@ -399,6 +400,7 @@ export class TimerService {
       planTasks: this.planTasks.map(t => ({ ...t })),
       activeTaskId: this.activeTaskId,
       laterTasks: this.laterTasks.map(t => ({ ...t })),
+      planMax: this.planMax,
       soundEnabled: this.soundEnabled,
       autoStartNextSession: this.autoStartNextSession,
       taskLabel: this.taskLabel,
@@ -518,7 +520,7 @@ export class TimerService {
   addTask(label: string): void {
     this.checkDailyReset();
     const trimmed = label.trim().slice(0, 60);
-    if (!trimmed || this.planTasks.length >= PLAN_MAX) return;
+    if (!trimmed || this.planTasks.length >= this.planMax) return;
     this.planTasks.push({ id: uid(), label: trimmed, done: false, sessions: 0 });
     if (!this.activeTaskId) this.syncActiveTask();
     this.commitPlanChange();
@@ -592,7 +594,7 @@ export class TimerService {
 
   promoteTask(id: string): void {
     const task = this.laterTasks.find(t => t.id === id);
-    if (!task || this.planTasks.length >= PLAN_MAX) return;
+    if (!task || this.planTasks.length >= this.planMax) return;
     this.laterTasks = this.laterTasks.filter(t => t.id !== id);
     this.planTasks.push({
       id: task.id,
@@ -675,6 +677,7 @@ export class TimerService {
     this.autoStartNextSession = cfg.get('autoStartNextSession', true);
     this.notificationsEnabled = cfg.get('notificationsEnabled', true);
     this.dailyGoal = cfg.get('dailyGoal', 8);
+    this.planMax = cfg.get('maxPlanTasks', 5);
     this.windDownTime = cfg.get('windDownTime', '18:00');
     this.onSnapshot(this.buildSnapshot());
   }
