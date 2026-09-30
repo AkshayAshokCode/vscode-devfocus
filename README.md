@@ -57,13 +57,14 @@ a defensible end to the day.
 - **Circular dial** — a live countdown with session segments showing round progress
 - **Status bar** — time, phase, and your current intent, always visible without opening the sidebar
 - **Sound & notifications** — a cue and a desktop notification when a session ends, a break ends, and when a round completes; toggle either independently, calm single-line copy
+- **Pauses when you step away** — close the lid or lock the screen (macOS) and the session pauses, then resumes on its own when you're back; time away never counts as focus. Breaks keep running — time away is the point
 - **Persistent state** — survives restarts, restored as paused, never silently loses time
 
 ### Today's plan
 
 - **Day plan** — write up to 5 tasks for today (adjustable in settings); the active one becomes your intent in the status bar and sessions count against it automatically
 - **Reorder & rename in place** — priorities change; drag isn't required, hover reveals the controls
-- **Complete mid-session** — check off the active task without stopping the timer; the next open one steps in
+- **Complete mid-session** — check off the active task without stopping the timer; the next open one steps in, or, if none is left, type the next task right there
 - **Later tray** — capture stray thoughts with `Alt+Shift+A` from anywhere, without leaving your code; promote them to today when their time comes
 
 ### Real breaks, not just timers
