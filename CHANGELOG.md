@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.5.0] - 2026-09-30
 
 ### Added
 - `devfocus.maxPlanTasks` setting (default 5, range 1–20) — the day plan's task limit is no longer fixed. When the plan is full, the add box is replaced by a note with a link straight to the setting
