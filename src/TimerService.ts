@@ -18,6 +18,9 @@ const MILESTONE_INTERVAL = 5;
 const PLAN_MAX = 5;
 const LATER_MAX = 10; // gates manual adds only; demotion and rollover always succeed
 const LATER_STALE_DAYS = 7;
+// A tick arriving this late means the machine slept (e.g. lid closed) — timers don't fire while suspended
+const SLEEP_GAP_MS = 10_000;
+const LOCK_POLL_MS = 5000;
 
 function isoDate(d: Date): string {
   return d.toISOString().split('T')[0];
@@ -54,11 +57,18 @@ export class TimerService {
   private taskLabel: string = '';
   private firstRun: boolean = false;
   private tickCount: number = 0;
+  private lastTickAt: number = Date.now();
+  private lastLockCheckAt: number = 0;
+  private lockCheckPending: boolean = false;
+  // True only while a session is paused because the user stepped away (sleep/lock),
+  // so it can resume on its own when they're back. Any manual start/reset clears it.
+  private awayPaused: boolean = false;
   private intervalHandle: ReturnType<typeof setInterval> | undefined;
 
   onSnapshot: (snap: TimerSnapshot) => void = () => {};
   onPlaySound: (sound: 'work' | 'break' | 'complete') => void = () => {};
   onNotify: (title: string, body: string, actionText?: string, actionCallback?: () => void) => void = () => {};
+  isScreenLocked: () => Promise<boolean> = () => Promise.resolve(false);
 
   constructor(private readonly context: vscode.ExtensionContext) {
     const cfg = vscode.workspace.getConfiguration('devfocus');
@@ -192,9 +202,29 @@ export class TimerService {
       this.persistState();
     }
 
+    const now = Date.now();
+    const sinceLastTick = now - this.lastTickAt;
+    this.lastTickAt = now;
+
     if (this.state !== TimerState.RUNNING) {
+      if (this.awayPaused) {
+        this.checkScreenLock(now);
+      }
       this.onSnapshot(this.buildSnapshot());
       return;
+    }
+
+    // Focus only counts while you're at the machine: a sleep (lid closed) or a
+    // locked screen pauses the session until you're back. Breaks are left alone —
+    // time away is the point.
+    if (this.phase === TimerPhase.WORK) {
+      if (sinceLastTick > SLEEP_GAP_MS) {
+        this.pauseForAway();
+        // Check right away — waking onto an unlocked desktop resumes immediately
+        this.checkScreenLock(now, true);
+        return;
+      }
+      this.checkScreenLock(now);
     }
 
     if (this.phase !== TimerPhase.WORK && this.phaseEndsAt !== null) {
@@ -218,6 +248,34 @@ export class TimerService {
       this.handlePhaseComplete();
     } else {
       this.onSnapshot(this.buildSnapshot());
+    }
+  }
+
+  private checkScreenLock(now: number, force = false): void {
+    if (this.lockCheckPending || (!force && now - this.lastLockCheckAt < LOCK_POLL_MS)) return;
+    this.lastLockCheckAt = now;
+    this.lockCheckPending = true;
+    this.isScreenLocked().then(locked => {
+      this.lockCheckPending = false;
+      // The check is async — act only on the state we're in now
+      if (this.phase !== TimerPhase.WORK) return;
+      if (locked && this.state === TimerState.RUNNING) {
+        this.pauseForAway();
+      } else if (!locked && this.state === TimerState.PAUSED && this.awayPaused) {
+        this.resumeFromAway();
+      }
+    }, () => { this.lockCheckPending = false; });
+  }
+
+  private pauseForAway(): void {
+    this.pause();
+    this.awayPaused = true;
+  }
+
+  private resumeFromAway(): void {
+    this.start(); // clears awayPaused
+    if (this.notificationsEnabled) {
+      this.onNotify('Welcome back — session resumed. Time away wasn\'t counted.', '');
     }
   }
 
@@ -351,6 +409,7 @@ export class TimerService {
   // --- Public API ---
 
   start(): void {
+    this.awayPaused = false;
     if (this.state === TimerState.IDLE || this.state === TimerState.PAUSED) {
       this.firstRun = false;
       this.state = TimerState.RUNNING;
@@ -385,6 +444,7 @@ export class TimerService {
   }
 
   reset(): void {
+    this.awayPaused = false;
     this.state = TimerState.IDLE;
     this.phase = TimerPhase.WORK;
     this.currentSession = 1;
