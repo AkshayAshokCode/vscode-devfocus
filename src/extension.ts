@@ -4,6 +4,7 @@ import { StatusBarController } from './StatusBarController';
 import { NotificationService } from './NotificationService';
 import { SoundService } from './SoundService';
 import { WebViewPanel } from './WebViewPanel';
+import { isScreenLocked } from './ScreenLockService';
 
 export function activate(context: vscode.ExtensionContext): void {
   const notificationService = new NotificationService();
@@ -29,6 +30,8 @@ export function activate(context: vscode.ExtensionContext): void {
     // fire-and-forget so timer keeps running
     notificationService.show(title, body, actionText, actionCallback);
   };
+
+  timerService.isScreenLocked = isScreenLocked;
 
   // Register sidebar panel
   context.subscriptions.push(
