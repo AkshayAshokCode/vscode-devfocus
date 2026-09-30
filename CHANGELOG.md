@@ -4,6 +4,7 @@
 
 ### Added
 - `devfocus.maxPlanTasks` setting (default 5, range 1–20) — the day plan's task limit is no longer fixed. When the plan is full, the add box is replaced by a note with a link straight to the setting
+- 18 new break tips (13 short-break, 5 long-break), with a bit more humour — and the same tip never shows twice in a row
 
 ### Fixed
 - Focus sessions now pause when you step away — closing the lid (sleep) or locking the screen (macOS) — and resume on their own when you're back; time away isn't counted as focus. Breaks keep running through both

@@ -12,11 +12,29 @@
     'Refill your water. Hydration is a feature.',
     'Unclench your jaw, drop your shoulders, breathe.',
     'Stand and stretch. You\'ll review better for it.',
+    'Look out a window. It\'s like a monitor, but the graphics are better.',
+    'The bug will still be there. You\'ll be sharper when you get back.',
+    'Your code can compile without you watching. Probably.',
+    'git stash your thoughts. Pop them after the break.',
+    'Hands off the keyboard. Yes, even that one quick fix.',
+    'Your posture called. It wants a refactor.',
+    'Water first. Coffee is a dev dependency, not a runtime one.',
+    'Stretch your back. There\'s no undo for it.',
+    'Close your eyes for a minute. Nothing to render.',
+    'Explain the problem to a plant. Rubber ducks are optional.',
+    'Five minutes offline. The internet will cope.',
+    'The best debugger ever made is a short walk.',
+    'Your chair could use a break from you, too.',
   ];
   const LONG_BREAK_TIPS = [
     'Round complete. Really step away — you\'ve earned it.',
     'A short walk now beats a slow evening later.',
     'Leave the desk. The next round will thank you.',
+    'Go outside. The sky is the original dark mode.',
+    'Round shipped. Deploy yourself somewhere away from the desk.',
+    'Eat something that didn\'t come out of a desk drawer.',
+    'Walk around the block. Fresh air is a free performance boost.',
+    'Touch grass. It has excellent uptime.',
   ];
 
   // DOM refs
@@ -356,7 +374,9 @@
   }
 
   function pickBreakTip(phase) {
-    const tips = phase === 'LONG_BREAK' ? LONG_BREAK_TIPS : BREAK_TIPS;
+    // Never the same tip twice in a row
+    const tips = (phase === 'LONG_BREAK' ? LONG_BREAK_TIPS : BREAK_TIPS)
+      .filter(t => t !== breakSub.textContent);
     breakSub.textContent = tips[Math.floor(Math.random() * tips.length)];
   }
 
